@@ -1,0 +1,48 @@
+syntax = "proto2";
+package starbelly;
+
+// Contains a crawl item, i.e. something downloaded by the crawler.
+message CrawlItem {
+    optional bytes body = 1;
+    optional string completed_at = 2;
+    optional double cost = 3;
+    optional double duration = 5;
+    map<string,string> headers = 6;
+    optional bytes job_id = 4;
+    optional string started_at = 7;
+    optional int32 status_code = 8;
+    optional string url = 10;
+    optional string url_can = 11;
+    optional bytes url_hash = 12;
+
+    // This field is used while syncing to keep track of which items have
+    // already been synced.
+    optional bytes sync_token = 13;
+}
+
+// The various run states a job may have.
+enum JobRunState {
+    UNKNOWN = 1;
+    CANCELLED = 2;
+    COMPLETED = 3;
+    PAUSED = 4;
+    PENDING = 5;
+    RUNNING = 6;
+}
+
+// Status for a single job.
+message JobStatus {
+    required bytes job_id = 1;
+    optional string name = 2;
+    optional JobRunState run_state = 3;
+    optional int32 item_count = 4;
+    optional int32 http_success_count = 5;
+    optional int32 http_error_count = 6;
+    optional int32 exception_count = 7;
+    map<int32, int32> http_status_counts = 8;
+}
+
+// Status for multiple jobs.
+message JobStatuses {
+    repeated JobStatus statuses = 1;
+}

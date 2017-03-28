@@ -1,0 +1,57 @@
+syntax = "proto2";
+package starbelly;
+
+import "protobuf/shared.proto";
+
+// An Event is sent for any active subscription whenever data is available for
+// that subscription.
+message Event {
+    required int32 subscription_id = 1;
+
+    // An event is required to have a body, but I don't know how to make it
+    // required in protobuf.
+    oneof Body {
+        CrawlItem crawl_item = 2;
+        JobStatuses job_statuses = 3;
+    }
+}
+
+// The server sends exactly one Response for each Request it receives.
+message Response {
+    // The request ID will match the request that prompted this response.
+    required int32 request_id = 1;
+    required bool is_success = 2;
+    optional string error_message = 3;
+
+    // The body is optional. Some commands only need to return success/error
+    // data.
+    oneof Body {
+        ResponseNewJob new_job = 4;
+        ResponseNewSubscription new_subscription = 6;
+        ResponsePing ping = 5;
+    }
+}
+
+/// A response containing the ID of a newly created job.
+message ResponseNewJob {
+    required bytes job_id = 1;
+}
+
+/// A response containing the ID of a newly created subscription.
+message ResponseNewSubscription {
+    required int32 subscription_id = 1;
+}
+
+// Returns the string received in RequestPing.
+message ResponsePing {
+    optional string pong = 1;
+}
+
+// A wrapper for all server messages that contains either a response to a
+// command or a subscription event.
+message ServerMessage {
+    oneof MessageType {
+        Event event = 1;
+        Response response = 2;
+    }
+}

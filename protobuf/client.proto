@@ -1,0 +1,62 @@
+syntax = "proto2";
+package starbelly;
+
+import "protobuf/shared.proto";
+
+// A Request is issued by the client, and the server is expected to send exactly
+// 1 Response for each Request.
+message Request {
+    // The request ID is included in the response so that the client can
+    // correlate requests and responses. (Responses may arrive in a different
+    // order than the requests were sent.)
+    required int32 request_id = 1;
+
+    // Each request has a body that contains a specific command. Every request
+    // is required to have a Command, but I don't know how to make it required
+    // in protobuf.
+    oneof Command {
+        RequestPing ping = 2;
+        RequestSetJobRunState set_job_run_state = 3;
+        RequestStartJob start_job = 4;
+        RequestSubscribeJobStatus subscribe_jobs_status = 5;
+        RequestSubscribeJobSync subscribe_job_sync = 6;
+        RequestUnsubscribe unsubscribe = 7;
+    }
+}
+
+// Pings may be sent by the clietn to keep the connection alive.
+message RequestPing {
+    // This string will be sent back in the response.
+    optional string pong = 1;
+}
+
+// Set the run state for a specified job.
+message RequestSetJobRunState {
+    required bytes job_id = 1;
+    required JobRunState run_state = 2;
+}
+
+// Start a new job.
+message RequestStartJob {
+    optional string name = 1;
+    repeated string seeds = 2;
+}
+
+// Subscribe to job status, e.g. run state, statistics, etc.
+message RequestSubscribeJobStatus {
+    // The minimum amount of time between jobs status messages. If multiple
+    // job statuses change in rapid succession, those changes are coalesced into
+    // a single event.
+    optional double min_interval = 1 [default = 1.0];
+}
+
+// Synchronize crawl results.
+message RequestSubscribeJobSync {
+    required bytes job_id = 1;
+    optional bytes sync_token = 2;
+}
+
+// Close the specified subscription.
+message RequestUnsubscribe {
+    required int32 subscription_id = 1;
+}
