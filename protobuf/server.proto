@@ -13,6 +13,7 @@ message Event {
     oneof Body {
         CrawlItem crawl_item = 2;
         JobStatuses job_statuses = 3;
+        SubscriptionClosed subscription_closed = 4;
     }
 }
 
@@ -54,4 +55,16 @@ message ServerMessage {
         Event event = 1;
         Response response = 2;
     }
+}
+
+// Sent when the server ends a subscription.
+message SubscriptionClosed {
+    enum Reason {
+        UNKNOWN = 1;
+        END = 2;
+        ERROR = 3;
+    }
+
+    required Reason reason = 1;
+    optional string message = 2;
 }

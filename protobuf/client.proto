@@ -24,7 +24,7 @@ message Request {
     }
 }
 
-// Pings may be sent by the clietn to keep the connection alive.
+// Pings may be sent by the client to keep the connection alive.
 message RequestPing {
     // This string will be sent back in the response.
     optional string pong = 1;
@@ -54,6 +54,7 @@ message RequestSubscribeJobStatus {
 message RequestSubscribeJobSync {
     required bytes job_id = 1;
     optional bytes sync_token = 2;
+    optional bool compression_ok = 3 [default = true];
 }
 
 // Close the specified subscription.
