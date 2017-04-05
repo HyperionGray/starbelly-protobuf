@@ -27,10 +27,20 @@ message Response {
     // The body is optional. Some commands only need to return success/error
     // data.
     oneof Body {
-        ResponseNewJob new_job = 4;
-        ResponseNewSubscription new_subscription = 6;
-        ResponsePing ping = 5;
+        ResponseListJobs list_jobs = 5;
+        ResponseNewJob new_job = 6;
+        ResponseNewSubscription new_subscription = 7;
+        ResponsePing ping = 8;
     }
+}
+
+/// Return a list of jobs.
+message ResponseListJobs {
+    repeated JobStatus jobs = 1;
+
+    // The total number of jobs (not the count of jobs included in this
+    // response).
+    optional int32 total = 2;
 }
 
 /// A response containing the ID of a newly created job.

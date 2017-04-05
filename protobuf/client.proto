@@ -15,13 +15,19 @@ message Request {
     // is required to have a Command, but I don't know how to make it required
     // in protobuf.
     oneof Command {
-        RequestPing ping = 2;
-        RequestSetJobRunState set_job_run_state = 3;
-        RequestStartJob start_job = 4;
-        RequestSubscribeJobStatus subscribe_jobs_status = 5;
-        RequestSubscribeJobSync subscribe_job_sync = 6;
-        RequestUnsubscribe unsubscribe = 7;
+        RequestListJobs list_jobs = 2;
+        RequestPing ping = 3;
+        RequestSetJobRunState set_job_run_state = 4;
+        RequestStartJob start_job = 5;
+        RequestSubscribeJobStatus subscribe_jobs_status = 6;
+        RequestSubscribeJobSync subscribe_job_sync = 7;
+        RequestUnsubscribe unsubscribe = 8;
     }
+}
+
+// Pings may be sent by the client to keep the connection alive.
+message RequestListJobs {
+    optional Page page = 1;
 }
 
 // Pings may be sent by the client to keep the connection alive.

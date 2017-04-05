@@ -36,14 +36,22 @@ message JobStatus {
     required bytes job_id = 1;
     optional string name = 2;
     optional JobRunState run_state = 3;
-    optional int32 item_count = 4;
-    optional int32 http_success_count = 5;
-    optional int32 http_error_count = 6;
-    optional int32 exception_count = 7;
-    map<int32, int32> http_status_counts = 8;
+    optional string started_at = 4;
+    optional string completed_at = 5;
+    optional int32 item_count = 6;
+    optional int32 http_success_count = 7;
+    optional int32 http_error_count = 8;
+    optional int32 exception_count = 9;
+    map<int32, int32> http_status_counts = 10;
 }
 
 // Status for multiple jobs.
 message JobStatuses {
     repeated JobStatus statuses = 1;
+}
+
+// For paginating large sets.
+message Page {
+    optional int32 limit = 1 [default = 10];
+    optional int32 offset = 2;
 }
