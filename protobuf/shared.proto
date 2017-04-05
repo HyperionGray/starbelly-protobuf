@@ -5,20 +5,21 @@ package starbelly;
 message CrawlItem {
     optional bytes body = 1;
     optional string completed_at = 2;
-    optional double cost = 3;
-    optional double duration = 4;
-    map<string,string> headers = 5;
-    optional bytes job_id = 6;
-    optional bool is_body_compressed = 7;
-    optional string started_at = 8;
-    optional int32 status_code = 9;
-    optional string url = 10;
-    optional string url_can = 11;
-    optional bytes url_hash = 12;
+    optional string content_type = 3;
+    optional double cost = 4;
+    optional double duration = 5;
+    map<string,string> headers = 6;
+    optional bytes job_id = 7;
+    optional bool is_body_compressed = 8;
+    optional string started_at = 9;
+    optional int32 status_code = 10;
+    optional string url = 11;
+    optional string url_can = 12;
+    optional bytes url_hash = 13;
 
     // This field is used while syncing to keep track of which items have
     // already been synced.
-    optional bytes sync_token = 13;
+    optional bytes sync_token = 14;
 }
 
 // The various run states a job may have.
