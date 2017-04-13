@@ -12,8 +12,8 @@ message Event {
     // required in protobuf.
     oneof Body {
         CrawlItem crawl_item = 2;
-        JobStatuses job_statuses = 3;
-        SubscriptionClosed subscription_closed = 4;
+        JobList job_list = 4;
+        SubscriptionClosed subscription_closed = 5;
     }
 }
 
@@ -27,16 +27,27 @@ message Response {
     // The body is optional. Some commands only need to return success/error
     // data.
     oneof Body {
-        ResponseListJobs list_jobs = 5;
-        ResponseNewJob new_job = 6;
-        ResponseNewSubscription new_subscription = 7;
-        ResponsePing ping = 8;
+        Job job = 5;
+        ResponseListItems list_items = 6;
+        ResponseListJobs list_jobs = 7;
+        ResponseNewJob new_job = 8;
+        ResponseNewSubscription new_subscription = 9;
+        ResponsePing ping = 10;
     }
+}
+
+/// Return a list of items.
+message ResponseListItems {
+    repeated CrawlItem items = 1;
+
+    // The total number of items (not the count of items included in this
+    // response).
+    optional int32 total = 2;
 }
 
 /// Return a list of jobs.
 message ResponseListJobs {
-    repeated JobStatus jobs = 1;
+    repeated Job jobs = 1;
 
     // The total number of jobs (not the count of jobs included in this
     // response).

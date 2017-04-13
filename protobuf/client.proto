@@ -16,18 +16,35 @@ message Request {
     // in protobuf.
     oneof Command {
         RequestListJobs list_jobs = 2;
-        RequestPing ping = 3;
-        RequestSetJobRunState set_job_run_state = 4;
-        RequestStartJob start_job = 5;
-        RequestSubscribeJobStatus subscribe_jobs_status = 6;
-        RequestSubscribeJobSync subscribe_job_sync = 7;
-        RequestUnsubscribe unsubscribe = 8;
+        RequestGetJob get_job = 3;
+        RequestGetJobItems get_job_items = 4;
+        RequestPing ping = 5;
+        RequestSetJobRunState set_job_run_state = 6;
+        RequestStartJob start_job = 7;
+        RequestSubscribeJobStatus subscribe_job_status = 8;
+        RequestSubscribeJobSync subscribe_job_sync = 9;
+        RequestUnsubscribe unsubscribe = 10;
     }
 }
 
 // Pings may be sent by the client to keep the connection alive.
 message RequestListJobs {
     optional Page page = 1;
+}
+
+// Pings may be sent by the client to keep the connection alive.
+message RequestGetJob {
+    required bytes job_id = 1;
+}
+
+// Get items from a job.
+message RequestGetJobItems {
+    required bytes job_id = 1;
+    optional bool include_success = 2;
+    optional bool include_error = 3;
+    optional bool include_exception = 4;
+    optional bool compression_ok = 5 [default = true];
+    optional Page page = 6;
 }
 
 // Pings may be sent by the client to keep the connection alive.

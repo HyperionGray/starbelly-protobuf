@@ -8,18 +8,20 @@ message CrawlItem {
     optional string content_type = 3;
     optional double cost = 4;
     optional double duration = 5;
-    map<string,string> headers = 6;
-    optional bytes job_id = 7;
+    optional string exception = 6;
+    map<string,string> headers = 7;
     optional bool is_body_compressed = 8;
-    optional string started_at = 9;
-    optional int32 status_code = 10;
-    optional string url = 11;
-    optional string url_can = 12;
-    optional bytes url_hash = 13;
+    optional bool is_success = 9;
+    optional bytes job_id = 10;
+    optional string started_at = 11;
+    optional int32 status_code = 12;
+    optional string url = 13;
+    optional string url_can = 14;
+    optional bytes url_hash = 15;
 
     // This field is used while syncing to keep track of which items have
     // already been synced.
-    optional bytes sync_token = 14;
+    optional bytes sync_token = 16;
 }
 
 // The various run states a job may have.
@@ -32,23 +34,27 @@ enum JobRunState {
     RUNNING = 6;
 }
 
-// Status for a single job.
-message JobStatus {
+// A crawl job.
+message Job {
     required bytes job_id = 1;
     optional string name = 2;
-    optional JobRunState run_state = 3;
-    optional string started_at = 4;
-    optional string completed_at = 5;
-    optional int32 item_count = 6;
-    optional int32 http_success_count = 7;
-    optional int32 http_error_count = 8;
-    optional int32 exception_count = 9;
-    map<int32, int32> http_status_counts = 10;
+    repeated string seeds = 3;
+    optional JobRunState run_state = 4;
+    optional string started_at = 5;
+    optional string completed_at = 6;
+    optional int32 item_count = 7 [default = -1];
+    optional int32 http_success_count = 8 [default = -1];
+    optional int32 http_error_count = 9 [default = -1];
+    optional int32 exception_count = 10 [default = -1];
+    map<int32, int32> http_status_counts = 11;
 }
 
-// Status for multiple jobs.
-message JobStatuses {
-    repeated JobStatus statuses = 1;
+// A list of jobs.
+//
+// This seemingly stupid message is necessary so that a list of jobs can be
+// used as the body of a "oneof".
+message JobList {
+    repeated Job jobs = 1;
 }
 
 // For paginating large sets.
