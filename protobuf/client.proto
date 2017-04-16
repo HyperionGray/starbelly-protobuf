@@ -15,16 +15,22 @@ message Request {
     // is required to have a Command, but I don't know how to make it required
     // in protobuf.
     oneof Command {
-        RequestListJobs list_jobs = 2;
-        RequestGetJob get_job = 3;
-        RequestGetJobItems get_job_items = 4;
-        RequestPing ping = 5;
-        RequestSetJobRunState set_job_run_state = 6;
-        RequestStartJob start_job = 7;
-        RequestSubscribeJobStatus subscribe_job_status = 8;
-        RequestSubscribeJobSync subscribe_job_sync = 9;
-        RequestUnsubscribe unsubscribe = 10;
+        RequestDeleteJob delete_job = 2;
+        RequestListJobs list_jobs = 3;
+        RequestGetJob get_job = 4;
+        RequestGetJobItems get_job_items = 5;
+        RequestPing ping = 6;
+        RequestSetJobRunState set_job_run_state = 7;
+        RequestStartJob start_job = 8;
+        RequestSubscribeJobStatus subscribe_job_status = 9;
+        RequestSubscribeJobSync subscribe_job_sync = 10;
+        RequestUnsubscribe unsubscribe = 11;
     }
+}
+
+// Delete a job and all of its items.
+message RequestDeleteJob {
+    required bytes job_id = 1;
 }
 
 // Pings may be sent by the client to keep the connection alive.
