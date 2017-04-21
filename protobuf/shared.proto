@@ -4,24 +4,25 @@ package starbelly;
 // Contains a crawl item, i.e. something downloaded by the crawler.
 message CrawlItem {
     optional bytes body = 1;
-    optional string completed_at = 2;
-    optional string content_type = 3;
-    optional double cost = 4;
-    optional double duration = 5;
-    optional string exception = 6;
-    map<string,string> headers = 7;
-    optional bool is_body_compressed = 8;
-    optional bool is_success = 9;
-    optional bytes job_id = 10;
-    optional string started_at = 11;
-    optional int32 status_code = 12;
-    optional string url = 13;
-    optional string url_can = 14;
-    optional bytes url_hash = 15;
+    optional string charset = 2;
+    optional string completed_at = 3;
+    optional string content_type = 4;
+    optional double cost = 5;
+    optional double duration = 6;
+    optional string exception = 7;
+    map<string,string> headers = 8;
+    optional bool is_body_compressed = 9;
+    optional bool is_success = 10;
+    optional bytes job_id = 11;
+    optional string started_at = 12;
+    optional int32 status_code = 13;
+    optional string url = 14;
+    optional string url_can = 15;
+    optional bytes url_hash = 16;
 
     // This field is used while syncing to keep track of which items have
     // already been synced.
-    optional bytes sync_token = 16;
+    optional bytes sync_token = 17;
 }
 
 // The various run states a job may have.
@@ -61,4 +62,19 @@ message JobList {
 message Page {
     optional int32 limit = 1 [default = 10];
     optional int32 offset = 2;
+}
+
+// Model for a rate limit.
+//
+// If domain is not specified, the global rate limit is modified. If delay
+// is not specified, then the rate limit for the specified domain is deleted.
+// Either delay or domain must be specified: you are not allowed to delete the
+// global limit.
+//
+// Name is optional: if the client sends a name, the server ignores it. The
+// server will always send a name to the client.
+message RateLimit {
+    optional string name = 1;
+    optional float delay = 2;
+    optional string domain = 3;
 }

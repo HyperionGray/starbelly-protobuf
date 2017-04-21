@@ -19,12 +19,14 @@ message Request {
         RequestListJobs list_jobs = 3;
         RequestGetJob get_job = 4;
         RequestGetJobItems get_job_items = 5;
-        RequestPing ping = 6;
-        RequestSetJobRunState set_job_run_state = 7;
-        RequestStartJob start_job = 8;
-        RequestSubscribeJobStatus subscribe_job_status = 9;
-        RequestSubscribeJobSync subscribe_job_sync = 10;
-        RequestUnsubscribe unsubscribe = 11;
+        RequestGetRateLimits get_rate_limits = 6;
+        RequestPing ping = 7;
+        RequestSetJobRunState set_job_run_state = 8;
+        RequestSetRateLimit set_rate_limit = 9;
+        RequestStartJob start_job = 10;
+        RequestSubscribeJobStatus subscribe_job_status = 11;
+        RequestSubscribeJobSync subscribe_job_sync = 12;
+        RequestUnsubscribe unsubscribe = 13;
     }
 }
 
@@ -53,6 +55,11 @@ message RequestGetJobItems {
     optional Page page = 6;
 }
 
+// Show rate limits.
+message RequestGetRateLimits {
+    optional Page page = 1;
+}
+
 // Pings may be sent by the client to keep the connection alive.
 message RequestPing {
     // This string will be sent back in the response.
@@ -63,6 +70,11 @@ message RequestPing {
 message RequestSetJobRunState {
     required bytes job_id = 1;
     required JobRunState run_state = 2;
+}
+
+// Set a rate limit.
+message RequestSetRateLimit {
+    required RateLimit rate_limit = 1;
 }
 
 // Start a new job.

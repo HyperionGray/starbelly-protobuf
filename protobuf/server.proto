@@ -30,9 +30,10 @@ message Response {
         Job job = 5;
         ResponseListItems list_items = 6;
         ResponseListJobs list_jobs = 7;
-        ResponseNewJob new_job = 8;
-        ResponseNewSubscription new_subscription = 9;
-        ResponsePing ping = 10;
+        ResponseListRateLimits list_rate_limits = 8;
+        ResponseNewJob new_job = 9;
+        ResponseNewSubscription new_subscription = 10;
+        ResponsePing ping = 11;
     }
 }
 
@@ -51,6 +52,15 @@ message ResponseListJobs {
 
     // The total number of jobs (not the count of jobs included in this
     // response).
+    optional int32 total = 2;
+}
+
+/// Return a list of items.
+message ResponseListRateLimits {
+    repeated RateLimit rate_limits = 1;
+
+    // The total number of rate limits (not the count of rate limits included
+    // in this response).
     optional int32 total = 2;
 }
 
