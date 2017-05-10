@@ -25,6 +25,71 @@ message CrawlItem {
     optional bytes sync_token = 17;
 }
 
+// Specifies how a regex pattern should be used.
+enum PatternMatch {
+    MATCHES = 1;
+    DOES_NOT_MATCH = 2;
+}
+
+// Settings that dictate crawler behavior. Policy is set on a job-by-job basis.
+message Policy {
+    optional bytes policy_id = 1;
+    optional string name = 2;
+    optional string created_at = 3;
+    optional string updated_at = 4;
+
+    optional PolicyLimits limits = 5;
+    repeated PolicyMimeTypeRule mime_type_rules = 6;
+    optional PolicyRobotsTxt robots_txt = 7;
+    repeated PolicyUrlRule url_rules = 8;
+    repeated PolicyUserAgent user_agents = 9;
+}
+
+// Specifies limits on how far or how long a crawl runs.
+message PolicyLimits {
+    optional double max_cost = 1;
+    optional double max_duration = 2;
+    optional int32 max_items = 3;
+}
+
+// Specifies whether to save or discard certain items based on MIME type.
+//
+// If pattern is not specified, then this rule applies to all items.
+message PolicyMimeTypeRule {
+    optional string pattern = 1;
+    optional PatternMatch match = 2;
+    optional bool save = 3;
+}
+
+// Specify handling of robots.txt.
+message PolicyRobotsTxt {
+    enum Usage {
+        OBEY = 1;   // Obey robots.txt rules.
+        INVERT = 2; // Do the opposite of robots.txt rules.
+        IGNORE = 3; // Ignore robots.txt.
+    }
+
+    required Usage usage = 1;
+}
+
+// A rule for adjusting a URL's cost.
+message PolicyUrlRule {
+    enum Action {
+        ADD = 1;      // Add `amount` to parent cost.
+        MULTIPLY = 2; // Multiply parent cost by `amount`.
+    }
+
+    optional string pattern = 1;
+    optional PatternMatch match = 2;
+    optional Action action = 3;
+    optional double amount = 4;
+}
+
+// Specifies a user agent string to send when downloading an item.
+message PolicyUserAgent {
+    required string name = 1;
+}
+
 // The various run states a job may have.
 enum JobRunState {
     UNKNOWN = 1;
@@ -38,16 +103,17 @@ enum JobRunState {
 // A crawl job.
 message Job {
     required bytes job_id = 1;
-    optional string name = 2;
-    repeated string seeds = 3;
-    optional JobRunState run_state = 4;
-    optional string started_at = 5;
-    optional string completed_at = 6;
-    optional int32 item_count = 7 [default = -1];
-    optional int32 http_success_count = 8 [default = -1];
-    optional int32 http_error_count = 9 [default = -1];
-    optional int32 exception_count = 10 [default = -1];
-    map<int32, int32> http_status_counts = 11;
+    repeated string seeds = 2;
+    optional Policy policy = 3;
+    optional string name = 4;
+    optional JobRunState run_state = 5;
+    optional string started_at = 6;
+    optional string completed_at = 7;
+    optional int32 item_count = 8 [default = -1];
+    optional int32 http_success_count = 9 [default = -1];
+    optional int32 http_error_count = 10 [default = -1];
+    optional int32 exception_count = 11 [default = -1];
+    map<int32, int32> http_status_counts = 12;
 }
 
 // A list of jobs.

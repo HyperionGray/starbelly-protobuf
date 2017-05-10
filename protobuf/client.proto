@@ -16,17 +16,21 @@ message Request {
     // in protobuf.
     oneof Command {
         RequestDeleteJob delete_job = 2;
-        RequestListJobs list_jobs = 3;
+        RequestDeletePolicy delete_policy = 3;
         RequestGetJob get_job = 4;
         RequestGetJobItems get_job_items = 5;
-        RequestGetRateLimits get_rate_limits = 6;
-        RequestPing ping = 7;
-        RequestSetJobRunState set_job_run_state = 8;
-        RequestSetRateLimit set_rate_limit = 9;
-        RequestStartJob start_job = 10;
-        RequestSubscribeJobStatus subscribe_job_status = 11;
-        RequestSubscribeJobSync subscribe_job_sync = 12;
-        RequestUnsubscribe unsubscribe = 13;
+        RequestGetPolicy get_policy = 6;
+        RequestGetRateLimits get_rate_limits = 7;
+        RequestListJobs list_jobs = 8;
+        RequestListPolicies list_policies = 9;
+        RequestPing ping = 10;
+        RequestSetJobRunState set_job_run_state = 11;
+        RequestSetPolicy set_policy = 12;
+        RequestSetRateLimit set_rate_limit = 13;
+        RequestStartJob start_job = 14;
+        RequestSubscribeJobStatus subscribe_job_status = 15;
+        RequestSubscribeJobSync subscribe_job_sync = 16;
+        RequestUnsubscribe unsubscribe = 17;
     }
 }
 
@@ -35,9 +39,9 @@ message RequestDeleteJob {
     required bytes job_id = 1;
 }
 
-// Pings may be sent by the client to keep the connection alive.
-message RequestListJobs {
-    optional Page page = 1;
+// Delete a policy.
+message RequestDeletePolicy {
+    required bytes policy_id = 1;
 }
 
 // Pings may be sent by the client to keep the connection alive.
@@ -55,8 +59,23 @@ message RequestGetJobItems {
     optional Page page = 6;
 }
 
+// Get a policy.
+message RequestGetPolicy {
+    required bytes policy_id = 1;
+}
+
 // Show rate limits.
 message RequestGetRateLimits {
+    optional Page page = 1;
+}
+
+// Get a list of jobs.
+message RequestListJobs {
+    optional Page page = 1;
+}
+
+// Get a list of policies.
+message RequestListPolicies {
     optional Page page = 1;
 }
 
@@ -77,10 +96,19 @@ message RequestSetRateLimit {
     required RateLimit rate_limit = 1;
 }
 
+// Create or update a crawl policy.
+//
+// If the policy's ID is blank, then the server will create a new policy.
+// If the ID is not blank, then the server will update the corresponding policy.
+message RequestSetPolicy {
+    required Policy policy = 1;
+}
+
 // Start a new job.
 message RequestStartJob {
-    optional string name = 1;
-    repeated string seeds = 2;
+    repeated string seeds = 1;
+    required bytes policy_id = 3;
+    optional string name = 2;
 }
 
 // Subscribe to job status, e.g. run state, statistics, etc.

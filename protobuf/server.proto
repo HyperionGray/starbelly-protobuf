@@ -28,12 +28,15 @@ message Response {
     // data.
     oneof Body {
         Job job = 5;
-        ResponseListItems list_items = 6;
-        ResponseListJobs list_jobs = 7;
-        ResponseListRateLimits list_rate_limits = 8;
-        ResponseNewJob new_job = 9;
-        ResponseNewSubscription new_subscription = 10;
-        ResponsePing ping = 11;
+        Policy policy = 6;
+        ResponseListItems list_items = 7;
+        ResponseListJobs list_jobs = 8;
+        ResponseListPolicies list_policies = 9;
+        ResponseListRateLimits list_rate_limits = 10;
+        ResponseNewJob new_job = 11;
+        ResponseNewPolicy new_policy = 12;
+        ResponseNewSubscription new_subscription = 13;
+        ResponsePing ping = 14;
     }
 }
 
@@ -55,6 +58,15 @@ message ResponseListJobs {
     optional int32 total = 2;
 }
 
+/// Return a list of jobs.
+message ResponseListPolicies {
+    repeated Policy policies = 1;
+
+    // The total number of jobs (not the count of jobs included in this
+    // response).
+    optional int32 total = 2;
+}
+
 /// Return a list of items.
 message ResponseListRateLimits {
     repeated RateLimit rate_limits = 1;
@@ -67,6 +79,11 @@ message ResponseListRateLimits {
 /// A response containing the ID of a newly created job.
 message ResponseNewJob {
     required bytes job_id = 1;
+}
+
+/// A response containing the ID of a newly created policy.
+message ResponseNewPolicy {
+    required bytes policy_id = 1;
 }
 
 /// A response containing the ID of a newly created subscription.
