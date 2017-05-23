@@ -100,12 +100,11 @@ message PolicyUserAgent {
 
 // The various run states a job may have.
 enum JobRunState {
-    UNKNOWN = 1;
-    CANCELLED = 2;
-    COMPLETED = 3;
-    PAUSED = 4;
-    PENDING = 5;
-    RUNNING = 6;
+    CANCELLED = 1;
+    COMPLETED = 2;
+    PAUSED = 3;
+    PENDING = 4;
+    RUNNING = 5;
 }
 
 // A crawl job.
