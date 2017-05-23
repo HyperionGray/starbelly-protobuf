@@ -39,10 +39,11 @@ message Policy {
     optional string updated_at = 4;
 
     optional PolicyLimits limits = 5;
-    repeated PolicyMimeTypeRule mime_type_rules = 6;
-    optional PolicyRobotsTxt robots_txt = 7;
-    repeated PolicyUrlRule url_rules = 8;
-    repeated PolicyUserAgent user_agents = 9;
+    repeated PolicyProxyRule proxy_rules = 6;
+    repeated PolicyMimeTypeRule mime_type_rules = 7;
+    optional PolicyRobotsTxt robots_txt = 8;
+    repeated PolicyUrlRule url_rules = 9;
+    repeated PolicyUserAgent user_agents = 10;
 }
 
 // Specifies limits on how far or how long a crawl runs.
@@ -59,6 +60,13 @@ message PolicyMimeTypeRule {
     optional string pattern = 1;
     optional PatternMatch match = 2;
     optional bool save = 3;
+}
+
+// When and how to proxy requests.
+message PolicyProxyRule {
+    optional string pattern = 1;
+    optional PatternMatch match = 2;
+    required string proxy_url = 3;
 }
 
 // Specify handling of robots.txt.
