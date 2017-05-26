@@ -105,6 +105,8 @@ enum JobRunState {
     PAUSED = 3;
     PENDING = 4;
     RUNNING = 5;
+    DELETED = 6; // This isn't really a valid run state. It indicates that job
+                 // no longer exists.
 }
 
 // A crawl job.
