@@ -11,7 +11,7 @@ message Event {
     // An event is required to have a body, but I don't know how to make it
     // required in protobuf.
     oneof Body {
-        CrawlItem crawl_item = 2;
+        Result result = 2;
         JobList job_list = 4;
         SubscriptionClosed subscription_closed = 5;
     }
@@ -29,7 +29,7 @@ message Response {
     oneof Body {
         Job job = 5;
         Policy policy = 6;
-        ResponseListItems list_items = 7;
+        ResponseListResults list_results = 7;
         ResponseListJobs list_jobs = 8;
         ResponseListPolicies list_policies = 9;
         ResponseListRateLimits list_rate_limits = 10;
@@ -40,11 +40,11 @@ message Response {
     }
 }
 
-/// Return a list of items.
-message ResponseListItems {
-    repeated CrawlItem items = 1;
+/// Return a list of crawl results.
+message ResponseListResults {
+    repeated Result results = 1;
 
-    // The total number of items (not the count of items included in this
+    // The total number of results (not the count of results included in this
     // response).
     optional int32 total = 2;
 }
@@ -67,7 +67,7 @@ message ResponseListPolicies {
     optional int32 total = 2;
 }
 
-/// Return a list of items.
+/// Return a list of rate limits.
 message ResponseListRateLimits {
     repeated RateLimit rate_limits = 1;
 
@@ -94,6 +94,13 @@ message ResponseNewSubscription {
 // Returns the string received in RequestPing.
 message ResponsePing {
     optional string pong = 1;
+}
+
+// The event sent when syncing a crawl job. One event is sent for each result.
+message SyncEvent {
+    required Result result = 1;
+    required bytes sync_token = 2;
+
 }
 
 // A wrapper for all server messages that contains either a response to a

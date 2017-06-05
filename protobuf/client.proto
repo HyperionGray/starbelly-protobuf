@@ -18,7 +18,7 @@ message Request {
         RequestDeleteJob delete_job = 2;
         RequestDeletePolicy delete_policy = 3;
         RequestGetJob get_job = 4;
-        RequestGetJobItems get_job_items = 5;
+        RequestGetJobResults get_job_results = 5;
         RequestGetPolicy get_policy = 6;
         RequestGetRateLimits get_rate_limits = 7;
         RequestListJobs list_jobs = 8;
@@ -34,7 +34,7 @@ message Request {
     }
 }
 
-// Delete a job and all of its items.
+// Delete a job and all of its results.
 message RequestDeleteJob {
     required bytes job_id = 1;
 }
@@ -49,8 +49,8 @@ message RequestGetJob {
     required bytes job_id = 1;
 }
 
-// Get items from a job.
-message RequestGetJobItems {
+// Get results from a job.
+message RequestGetJobResults {
     required bytes job_id = 1;
     optional bool include_success = 2;
     optional bool include_error = 3;
