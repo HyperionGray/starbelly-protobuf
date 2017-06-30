@@ -1,6 +1,26 @@
 syntax = "proto2";
 package starbelly;
 
+// Contains a crawl response, i.e. something downloaded by the crawler or the
+// error/exception that resulted from attempting to download it.
+message CrawlResponse {
+    optional bytes body = 1;
+    optional string charset = 2;
+    optional string completed_at = 3;
+    optional string content_type = 4;
+    optional double cost = 5;
+    optional double duration = 6;
+    optional string exception = 7;
+    map<string,string> headers = 8;
+    optional bool is_body_compressed = 9;
+    optional bool is_success = 10;
+    optional bytes job_id = 11;
+    optional string started_at = 12;
+    optional int32 status_code = 13;
+    optional string url = 14;
+    optional string url_can = 15;
+}
+
 // A crawl job.
 message Job {
     required bytes job_id = 1;
@@ -10,7 +30,7 @@ message Job {
     optional JobRunState run_state = 5;
     optional string started_at = 6;
     optional string completed_at = 7;
-    optional int32 result_count = 8 [default = -1];
+    optional int32 item_count = 8 [default = -1];
     optional int32 http_success_count = 9 [default = -1];
     optional int32 http_error_count = 10 [default = -1];
     optional int32 exception_count = 11 [default = -1];
@@ -67,12 +87,12 @@ message Policy {
 message PolicyLimits {
     optional double max_cost = 1;
     optional double max_duration = 2;
-    optional int32 max_results = 3;
+    optional int32 max_items = 3;
 }
 
-// Specifies whether to save or discard certain results based on MIME type.
+// Specifies whether to save or discard certain responses based on MIME type.
 //
-// If pattern is not specified, then this rule applies to all results.
+// If pattern is not specified, then this rule applies to all responses.
 message PolicyMimeTypeRule {
     optional string pattern = 1;
     optional PatternMatch match = 2;
@@ -128,24 +148,4 @@ message RateLimit {
     optional string name = 1;
     optional float delay = 2;
     optional string domain = 3;
-}
-
-// Contains a crawl result, i.e. something downloaded by the crawler or the
-// error/exception that resulted from attempting to download it.
-message Result {
-    optional bytes body = 1;
-    optional string charset = 2;
-    optional string completed_at = 3;
-    optional string content_type = 4;
-    optional double cost = 5;
-    optional double duration = 6;
-    optional string exception = 7;
-    map<string,string> headers = 8;
-    optional bool is_body_compressed = 9;
-    optional bool is_success = 10;
-    optional bytes job_id = 11;
-    optional string started_at = 12;
-    optional int32 status_code = 13;
-    optional string url = 14;
-    optional string url_can = 15;
 }

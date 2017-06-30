@@ -11,10 +11,78 @@ message Event {
     // An event is required to have a body, but I don't know how to make it
     // required in protobuf.
     oneof Body {
-        Result result = 2;
-        JobList job_list = 4;
-        SubscriptionClosed subscription_closed = 5;
+        JobList job_list = 2;
+        ResourceFrame resource_frame = 3;
+        SubscriptionClosed subscription_closed = 4;
+        SyncItem sync_item = 5;
+        TaskMonitor task_monitor = 6;
     }
+}
+
+// Performance profile data for a single function.
+message PerformanceProfileFunction {
+    optional string file = 1;
+    optional int32 line_number = 2;
+    optional string function = 3;
+    optional int32 calls = 4;
+    optional int32 non_recursive_calls = 5;
+    optional double total_time = 6;
+    optional double cumulative_time = 7;
+}
+
+// Data about resource consumption.
+message ResourceFrame {
+    optional string timestamp = 1;
+    repeated ResourceFrameCpu cpus = 2;
+    optional ResourceFrameMemory memory = 3;
+    repeated ResourceFrameDisk disks = 4;
+    repeated ResourceFrameNetwork networks = 5;
+    repeated ResourceFrameCrawl crawls = 6;
+    optional ResourceFrameRateLimiter rate_limiter = 7;
+    optional ResourceFrameDownloader downloader = 8;
+}
+
+// CPU usage.
+message ResourceFrameCpu {
+    optional double usage = 1;
+}
+
+// Resources used by a crawl job.
+message ResourceFrameCrawl {
+    optional bytes job_id = 1;
+    optional int32 frontier = 2;
+    optional int32 pending = 3;
+    optional int32 extraction = 4;
+}
+
+// Disk usage.
+message ResourceFrameDisk {
+    optional string mount = 1;
+    optional int64 used = 2;
+    optional int64 total = 3;
+}
+
+// Resources used by downloader.
+message ResourceFrameDownloader {
+    optional int32 count = 1;
+}
+
+// Memory usage.
+message ResourceFrameMemory {
+    optional int64 used = 1;
+    optional int64 total = 2;
+}
+
+// Network usage.
+message ResourceFrameNetwork {
+    optional string name = 1;
+    optional int32 sent = 2;
+    optional int32 received = 3;
+}
+
+// Resources used by rate limiter.
+message ResourceFrameRateLimiter {
+    optional int32 count = 1;
 }
 
 // The server sends exactly one Response for each Request it receives.
@@ -29,27 +97,28 @@ message Response {
     oneof Body {
         Job job = 5;
         Policy policy = 6;
-        ResponseListResults list_results = 7;
+        ResponseListItems list_items = 7;
         ResponseListJobs list_jobs = 8;
         ResponseListPolicies list_policies = 9;
         ResponseListRateLimits list_rate_limits = 10;
         ResponseNewJob new_job = 11;
         ResponseNewPolicy new_policy = 12;
         ResponseNewSubscription new_subscription = 13;
-        ResponsePing ping = 14;
+        ResponsePerformanceProfile performance_profile = 14;
+        ResponsePing ping = 15;
     }
 }
 
-/// Return a list of crawl results.
-message ResponseListResults {
-    repeated Result results = 1;
+// Return a list of items (crawl responses) for a job.
+message ResponseListItems {
+    repeated CrawlResponse items = 1;
 
-    // The total number of results (not the count of results included in this
+    // The total number of items (not the count of items included in this
     // response).
     optional int32 total = 2;
 }
 
-/// Return a list of jobs.
+// Return a list of jobs.
 message ResponseListJobs {
     repeated Job jobs = 1;
 
@@ -58,7 +127,7 @@ message ResponseListJobs {
     optional int32 total = 2;
 }
 
-/// Return a list of jobs.
+// Return a list of jobs.
 message ResponseListPolicies {
     repeated Policy policies = 1;
 
@@ -67,7 +136,7 @@ message ResponseListPolicies {
     optional int32 total = 2;
 }
 
-/// Return a list of rate limits.
+// Return a list of rate limits.
 message ResponseListRateLimits {
     repeated RateLimit rate_limits = 1;
 
@@ -76,19 +145,26 @@ message ResponseListRateLimits {
     optional int32 total = 2;
 }
 
-/// A response containing the ID of a newly created job.
+// A response containing the ID of a newly created job.
 message ResponseNewJob {
     required bytes job_id = 1;
 }
 
-/// A response containing the ID of a newly created policy.
+// A response containing the ID of a newly created policy.
 message ResponseNewPolicy {
     required bytes policy_id = 1;
 }
 
-/// A response containing the ID of a newly created subscription.
+// A response containing the ID of a newly created subscription.
 message ResponseNewSubscription {
     required int32 subscription_id = 1;
+}
+
+// Contains performance profile data.
+message ResponsePerformanceProfile {
+    optional int32 total_calls = 1;
+    optional double total_time = 2;
+    repeated PerformanceProfileFunction functions = 3;
 }
 
 // Returns the string received in RequestPing.
@@ -96,11 +172,11 @@ message ResponsePing {
     optional string pong = 1;
 }
 
-// The event sent when syncing a crawl job. One event is sent for each result.
-message SyncEvent {
-    required Result result = 1;
-    required bytes sync_token = 2;
-
+// An item sent when syncing a crawl job. One event is sent for each crawl
+// response.
+message SyncItem {
+    required CrawlResponse item = 1;
+    required bytes token = 2;
 }
 
 // A wrapper for all server messages that contains either a response to a
@@ -121,4 +197,16 @@ message SubscriptionClosed {
 
     required Reason reason = 1;
     optional string message = 2;
+}
+
+// A single asyncio task.
+message Task {
+    optional string name = 1;
+    optional int32 count = 2;
+}
+
+// Status of asyncio tasks.
+message TaskMonitor {
+    optional int32 count = 1;
+    repeated Task tasks = 2;
 }

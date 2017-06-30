@@ -18,23 +18,26 @@ message Request {
         RequestDeleteJob delete_job = 2;
         RequestDeletePolicy delete_policy = 3;
         RequestGetJob get_job = 4;
-        RequestGetJobResults get_job_results = 5;
+        RequestGetJobItems get_job_items = 5;
         RequestGetPolicy get_policy = 6;
         RequestGetRateLimits get_rate_limits = 7;
         RequestListJobs list_jobs = 8;
         RequestListPolicies list_policies = 9;
-        RequestPing ping = 10;
-        RequestSetJobRunState set_job_run_state = 11;
-        RequestSetPolicy set_policy = 12;
-        RequestSetRateLimit set_rate_limit = 13;
-        RequestStartJob start_job = 14;
-        RequestSubscribeJobStatus subscribe_job_status = 15;
-        RequestSubscribeJobSync subscribe_job_sync = 16;
-        RequestUnsubscribe unsubscribe = 17;
+        RequestPerformanceProfile performance_profile = 10;
+        RequestPing ping = 11;
+        RequestSetJobRunState set_job_run_state = 12;
+        RequestSetPolicy set_policy = 13;
+        RequestSetRateLimit set_rate_limit = 14;
+        RequestStartJob start_job = 15;
+        RequestSubscribeJobStatus subscribe_job_status = 16;
+        RequestSubscribeJobSync subscribe_job_sync = 17;
+        RequestSubscribeResourceMonitor subscribe_resource_monitor = 18;
+        RequestSubscribeTaskMonitor subscribe_task_monitor = 19;
+        RequestUnsubscribe unsubscribe = 20;
     }
 }
 
-// Delete a job and all of its results.
+// Delete a job and all of its items.
 message RequestDeleteJob {
     required bytes job_id = 1;
 }
@@ -49,8 +52,8 @@ message RequestGetJob {
     required bytes job_id = 1;
 }
 
-// Get results from a job.
-message RequestGetJobResults {
+// Get a list of items (crawl responses) from a job.
+message RequestGetJobItems {
     required bytes job_id = 1;
     optional bool include_success = 2;
     optional bool include_error = 3;
@@ -77,6 +80,13 @@ message RequestListJobs {
 // Get a list of policies.
 message RequestListPolicies {
     optional Page page = 1;
+}
+
+// Request a performance profile.
+message RequestPerformanceProfile {
+    optional double duration = 1 [default = 5.0];
+    optional string sort_by = 2 [default = "time"];
+    optional int32 top_n = 3;
 }
 
 // Pings may be sent by the client to keep the connection alive.
@@ -119,11 +129,23 @@ message RequestSubscribeJobStatus {
     optional double min_interval = 1 [default = 1.0];
 }
 
-// Synchronize crawl results.
+// Synchronize crawl responses.
 message RequestSubscribeJobSync {
     required bytes job_id = 1;
     optional bytes sync_token = 2;
     optional bool compression_ok = 3 [default = true];
+}
+
+// Subscribe to resource monitoring, e.g. CPU usage, memory usage,
+// downloads/sec, etc.
+message RequestSubscribeResourceMonitor {
+    optional int32 history = 1 [default = 300];
+}
+
+// Subscribe to updates about resource usage (CPU, memory, disk, etc.)
+message RequestSubscribeTaskMonitor {
+    optional double period = 1 [default = 3];
+    optional int32 top_n = 2 [default = 20];
 }
 
 // Close the specified subscription.
