@@ -76,8 +76,8 @@ message ResourceFrameMemory {
 // Network usage.
 message ResourceFrameNetwork {
     optional string name = 1;
-    optional int32 sent = 2;
-    optional int32 received = 3;
+    optional int64 sent = 2;
+    optional int64 received = 3;
 }
 
 // Resources used by rate limiter.
