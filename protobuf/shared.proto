@@ -27,14 +27,15 @@ message Job {
     repeated string seeds = 2;
     optional Policy policy = 3;
     optional string name = 4;
-    optional JobRunState run_state = 5;
-    optional string started_at = 6;
-    optional string completed_at = 7;
-    optional int32 item_count = 8 [default = -1];
-    optional int32 http_success_count = 9 [default = -1];
-    optional int32 http_error_count = 10 [default = -1];
-    optional int32 exception_count = 11 [default = -1];
-    map<int32, int32> http_status_counts = 12;
+    optional TagList tag_list = 5;
+    optional JobRunState run_state = 6;
+    optional string started_at = 7;
+    optional string completed_at = 8;
+    optional int32 item_count = 9 [default = -1];
+    optional int32 http_success_count = 10 [default = -1];
+    optional int32 http_error_count = 11 [default = -1];
+    optional int32 exception_count = 12 [default = -1];
+    map<int32, int32> http_status_counts = 13;
 }
 
 // A list of jobs.
@@ -148,4 +149,12 @@ message RateLimit {
     optional string name = 1;
     optional float delay = 2;
     optional string domain = 3;
+}
+
+// A list of tags.
+//
+// This seemingly pointless message is actually useful because it allows us
+// to differentiate between an empty list and a null list.
+message TagList {
+    repeated string tags = 1;
 }

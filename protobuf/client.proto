@@ -25,15 +25,14 @@ message Request {
         RequestListPolicies list_policies = 9;
         RequestPerformanceProfile performance_profile = 10;
         RequestPing ping = 11;
-        RequestSetJobRunState set_job_run_state = 12;
+        RequestSetJob set_job = 12;
         RequestSetPolicy set_policy = 13;
         RequestSetRateLimit set_rate_limit = 14;
-        RequestStartJob start_job = 15;
-        RequestSubscribeJobStatus subscribe_job_status = 16;
-        RequestSubscribeJobSync subscribe_job_sync = 17;
-        RequestSubscribeResourceMonitor subscribe_resource_monitor = 18;
-        RequestSubscribeTaskMonitor subscribe_task_monitor = 19;
-        RequestUnsubscribe unsubscribe = 20;
+        RequestSubscribeJobStatus subscribe_job_status = 15;
+        RequestSubscribeJobSync subscribe_job_sync = 16;
+        RequestSubscribeResourceMonitor subscribe_resource_monitor = 17;
+        RequestSubscribeTaskMonitor subscribe_task_monitor = 18;
+        RequestUnsubscribe unsubscribe = 19;
     }
 }
 
@@ -75,6 +74,8 @@ message RequestGetRateLimits {
 // Get a list of jobs.
 message RequestListJobs {
     optional Page page = 1;
+    optional string started_after = 2;
+    optional string tag = 3;
 }
 
 // Get a list of policies.
@@ -95,10 +96,17 @@ message RequestPing {
     optional string pong = 1;
 }
 
-// Set the run state for a specified job.
-message RequestSetJobRunState {
-    required bytes job_id = 1;
-    required JobRunState run_state = 2;
+// Create a job or update state for an existing job.
+//
+// Policy must be provided when creating a job and may not be changed when
+// updating a job.
+message RequestSetJob {
+    optional bytes job_id = 1;
+    optional JobRunState run_state = 2;
+    optional bytes policy_id = 3;
+    repeated string seeds = 4;
+    optional string name = 5;
+    optional TagList tag_list = 6;
 }
 
 // Set a rate limit.
@@ -112,13 +120,6 @@ message RequestSetRateLimit {
 // If the ID is not blank, then the server will update the corresponding policy.
 message RequestSetPolicy {
     required Policy policy = 1;
-}
-
-// Start a new job.
-message RequestStartJob {
-    repeated string seeds = 1;
-    required bytes policy_id = 3;
-    optional string name = 2;
 }
 
 // Subscribe to job status, e.g. run state, statistics, etc.

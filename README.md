@@ -27,13 +27,12 @@ some additional tools. First, install dart.
 Next, check out the Dart plugin for `protoc`. You should run this this command
 from the root of this repository.
 
-    $ git clone https://github.com/mehaase/dart-protoc-plugin
+    $ git clone https://github.com/dart-lang/dart-protoc-plugin
 
 Now install the plugin's dependencies:
 
     $ cd dart-protoc-plugin
     $ pub get
-    $ make run-tests # Not sure if this is necessary
 
 Now you should be ready to compile the protobuf definitions.
 
