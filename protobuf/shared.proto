@@ -5,20 +5,25 @@ package starbelly;
 // error/exception that resulted from attempting to download it.
 message CrawlResponse {
     optional bytes body = 1;
-    optional string charset = 2;
-    optional string completed_at = 3;
-    optional string content_type = 4;
-    optional double cost = 5;
-    optional double duration = 6;
-    optional string exception = 7;
-    map<string,string> headers = 8;
-    optional bool is_body_compressed = 9;
-    optional bool is_success = 10;
-    optional bytes job_id = 11;
-    optional string started_at = 12;
-    optional int32 status_code = 13;
-    optional string url = 14;
-    optional string url_can = 15;
+    optional string completed_at = 2;
+    optional string content_type = 3;
+    optional double cost = 4;
+    optional double duration = 5;
+    optional string exception = 6;
+    repeated Header headers = 7;
+    optional bool is_body_compressed = 8;
+    optional bool is_success = 9;
+    optional bytes job_id = 10;
+    optional string started_at = 11;
+    optional int32 status_code = 12;
+    optional string url = 13;
+    optional string url_can = 14;
+}
+
+// An HTTP header.
+message Header {
+    optional string key = 1;
+    optional string value = 2;
 }
 
 // A crawl job.
@@ -104,7 +109,7 @@ message PolicyMimeTypeRule {
 message PolicyProxyRule {
     optional string pattern = 1;
     optional PatternMatch match = 2;
-    required string proxy_url = 3;
+    optional string proxy_url = 3;
 }
 
 // Specify handling of robots.txt.

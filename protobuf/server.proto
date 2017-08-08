@@ -191,7 +191,7 @@ message ServerMessage {
 // Sent when the server ends a subscription.
 message SubscriptionClosed {
     enum Reason {
-        END = 1;
+        COMPLETE = 1;
         ERROR = 2;
     }
 
