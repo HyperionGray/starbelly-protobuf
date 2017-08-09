@@ -95,18 +95,30 @@ message Response {
     // The body is optional. Some commands only need to return success/error
     // data.
     oneof Body {
-        Job job = 5;
-        Policy policy = 6;
-        ResponseListItems list_items = 7;
-        ResponseListJobs list_jobs = 8;
-        ResponseListPolicies list_policies = 9;
-        ResponseListRateLimits list_rate_limits = 10;
-        ResponseNewJob new_job = 11;
-        ResponseNewPolicy new_policy = 12;
-        ResponseNewSubscription new_subscription = 13;
-        ResponsePerformanceProfile performance_profile = 14;
-        ResponsePing ping = 15;
+        DomainLogin domain_login = 5;
+        DomainLoginUser domain_login_user = 6;
+        Job job = 7;
+        Policy policy = 8;
+        ResponseListDomainLogins list_domain_logins = 9;
+        ResponseListItems list_items = 10;
+        ResponseListJobs list_jobs = 11;
+        ResponseListPolicies list_policies = 12;
+        ResponseListRateLimits list_rate_limits = 13;
+        ResponseNewJob new_job = 14;
+        ResponseNewPolicy new_policy = 15;
+        ResponseNewSubscription new_subscription = 16;
+        ResponsePerformanceProfile performance_profile = 17;
+        ResponsePing ping = 18;
     }
+}
+
+// Return a list of domain logins.
+message ResponseListDomainLogins {
+    repeated DomainLogin logins = 1;
+
+    // The total number of domains (not the count of domains included in
+    // this response).
+    optional int32 total = 2;
 }
 
 // Return a list of items (crawl responses) for a job.

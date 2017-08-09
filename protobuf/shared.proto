@@ -1,6 +1,22 @@
 syntax = "proto2";
 package starbelly;
 
+/// Login information for a domain.
+message DomainLogin {
+    optional string domain = 1;
+    optional string login_url = 2;
+    optional string login_test = 3;
+    optional int32 auth_count = 4;
+    repeated DomainLoginUser users = 5;
+}
+
+/// Username/password for a domain.
+message DomainLoginUser {
+    optional string username = 1;
+    optional string password = 2;
+    optional bool working = 3;
+}
+
 // Contains a crawl response, i.e. something downloaded by the crawler or the
 // error/exception that resulted from attempting to download it.
 message CrawlResponse {
@@ -81,12 +97,18 @@ message Policy {
     optional string created_at = 3;
     optional string updated_at = 4;
 
-    optional PolicyLimits limits = 5;
-    repeated PolicyProxyRule proxy_rules = 6;
-    repeated PolicyMimeTypeRule mime_type_rules = 7;
-    optional PolicyRobotsTxt robots_txt = 8;
-    repeated PolicyUrlRule url_rules = 9;
-    repeated PolicyUserAgent user_agents = 10;
+    optional PolicyAuthentication authentication = 6;
+    optional PolicyLimits limits = 7;
+    repeated PolicyProxyRule proxy_rules = 8;
+    repeated PolicyMimeTypeRule mime_type_rules = 9;
+    optional PolicyRobotsTxt robots_txt = 10;
+    repeated PolicyUrlRule url_rules = 11;
+    repeated PolicyUserAgent user_agents = 12;
+}
+
+// Settings for authenticated crawling.
+message PolicyAuthentication {
+    optional bool enabled = 1;
 }
 
 // Specifies limits on how far or how long a crawl runs.
