@@ -102,6 +102,7 @@ message Policy {
     repeated PolicyProxyRule proxy_rules = 8;
     repeated PolicyMimeTypeRule mime_type_rules = 9;
     optional PolicyRobotsTxt robots_txt = 10;
+    optional PolicyUrlNormalization url_normalization = 13;
     repeated PolicyUrlRule url_rules = 11;
     repeated PolicyUserAgent user_agents = 12;
 }
@@ -143,6 +144,11 @@ message PolicyRobotsTxt {
     }
 
     required Usage usage = 1;
+}
+
+message PolicyUrlNormalization {
+    optional bool enabled = 1;
+    repeated string strip_parameters = 2;
 }
 
 // A rule for adjusting a URL's cost.
