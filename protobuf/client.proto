@@ -17,19 +17,23 @@ message Request {
     oneof Command {
         RequestDeleteDomainLogin delete_domain_login = 2;
         RequestDeleteJob delete_job = 3;
+        RequestDeleteJobSchedule delete_job_schedule = 24;
         RequestDeletePolicy delete_policy = 4;
         RequestGetDomainLogin get_domain_login = 5;
         RequestGetJob get_job = 6;
+        RequestGetJobSchedule get_job_schedule = 25;
         RequestGetJobItems get_job_items = 7;
         RequestGetPolicy get_policy = 8;
         RequestGetRateLimits get_rate_limits = 9;
         RequestListDomainLogins list_domain_logins = 10;
         RequestListJobs list_jobs = 11;
+        RequestListJobSchedules list_job_schedules = 26;
         RequestListPolicies list_policies = 12;
         RequestPerformanceProfile performance_profile = 13;
         RequestPing ping = 14;
         RequestSetDomainLogin set_domain_login = 15;
         RequestSetJob set_job = 16;
+        RequestSetJobSchedule set_job_schedule = 27;
         RequestSetPolicy set_policy = 17;
         RequestSetRateLimit set_rate_limit = 18;
         RequestSubscribeJobStatus subscribe_job_status = 19;
@@ -50,6 +54,11 @@ message RequestDeleteJob {
     required bytes job_id = 1;
 }
 
+// Delete a job schedule.
+message RequestDeleteJobSchedule {
+    required bytes schedule_id = 1;
+}
+
 // Delete a policy.
 message RequestDeletePolicy {
     required bytes policy_id = 1;
@@ -63,6 +72,11 @@ message RequestGetDomainLogin {
 // Get metadata for the specified job.
 message RequestGetJob {
     required bytes job_id = 1;
+}
+
+// Get metadata for the specified job schedule.
+message RequestGetJobSchedule {
+    required bytes schedule_id = 1;
 }
 
 // Get a list of items (crawl responses) from a job.
@@ -95,6 +109,12 @@ message RequestListJobs {
     optional Page page = 1;
     optional string started_after = 2;
     optional string tag = 3;
+    optional bytes schedule_id = 4;
+}
+
+// Get a list of job schedules.
+message RequestListJobSchedules {
+    optional Page page = 1;
 }
 
 // Get a list of policies.
@@ -131,6 +151,11 @@ message RequestSetJob {
     repeated string seeds = 4;
     optional string name = 5;
     optional TagList tag_list = 6;
+}
+
+// Create or update a job schedule.
+message RequestSetJobSchedule {
+    optional JobSchedule job_schedule = 1;
 }
 
 // Set a rate limit.

@@ -42,6 +42,17 @@ message Header {
     optional string value = 2;
 }
 
+// The various run states a job may have.
+enum JobRunState {
+    CANCELLED = 1;
+    COMPLETED = 2;
+    PAUSED = 3;
+    PENDING = 4;
+    RUNNING = 5;
+    DELETED = 6; // This isn't really a valid run state. It indicates that job
+                 // no longer exists.
+}
+
 // A crawl job.
 message Job {
     required bytes job_id = 1;
@@ -67,15 +78,51 @@ message JobList {
     repeated Job jobs = 1;
 }
 
-// The various run states a job may have.
-enum JobRunState {
-    CANCELLED = 1;
-    COMPLETED = 2;
-    PAUSED = 3;
-    PENDING = 4;
-    RUNNING = 5;
-    DELETED = 6; // This isn't really a valid run state. It indicates that job
-                 // no longer exists.
+// Define time units that may be used for scheduling a job.
+enum JobScheduleTimeUnit {
+    MINUTES = 1;
+    HOURS = 2;
+    DAYS = 3;
+    WEEKS = 4;
+    MONTHS = 5;
+    YEARS = 6;
+}
+
+// Define when a job should be scheduled.
+//
+// AFTER_PREVIOUS_JOB_FINISHED → Schedule a job X units of time after the
+// previous job completes.
+// REGULAR_INTERVAL → Schedule a job every X units of time; if the previous
+// job is still running, end it.
+enum JobScheduleTiming {
+    AFTER_PREVIOUS_JOB_FINISHED = 1;
+    REGULAR_INTERVAL = 2;
+}
+
+// Schedule information for a job.
+message JobSchedule {
+    required bytes schedule_id = 1;
+    optional string created_at = 2;
+    optional string updated_at = 3;
+    optional bool enabled = 4;
+    optional JobScheduleTimeUnit time_unit = 5;
+    optional int32 num_units = 6;
+    optional JobScheduleTiming timing = 7;
+    optional string schedule_name = 8;
+    optional string job_name = 9;
+    repeated string seeds = 10;
+    optional bytes policy_id = 11;
+    optional TagList tag_list = 12;
+    optional bytes latest_job_id = 13;
+    optional int32 job_count = 14;
+}
+
+// A list of job schedules.
+//
+// This seemingly stupid message is necessary so that a list of job schedules
+// can be used as the body of a "oneof".
+message JobScheduleList {
+    repeated JobSchedule job_schedules = 1;
 }
 
 // For paginating large sets.

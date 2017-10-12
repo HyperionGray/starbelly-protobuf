@@ -12,6 +12,7 @@ message Event {
     // required in protobuf.
     oneof Body {
         JobList job_list = 2;
+        JobScheduleList job_schedule_list = 7;
         ResourceFrame resource_frame = 3;
         SubscriptionClosed subscription_closed = 4;
         SyncItem sync_item = 5;
@@ -98,13 +99,16 @@ message Response {
         DomainLogin domain_login = 5;
         DomainLoginUser domain_login_user = 6;
         Job job = 7;
+        JobSchedule job_schedule = 19;
         Policy policy = 8;
         ResponseListDomainLogins list_domain_logins = 9;
         ResponseListItems list_items = 10;
         ResponseListJobs list_jobs = 11;
+        ResponseListJobSchedules list_job_schedules = 20;
         ResponseListPolicies list_policies = 12;
         ResponseListRateLimits list_rate_limits = 13;
         ResponseNewJob new_job = 14;
+        ResponseNewJobSchedule new_job_schedule = 21;
         ResponseNewPolicy new_policy = 15;
         ResponseNewSubscription new_subscription = 16;
         ResponsePerformanceProfile performance_profile = 17;
@@ -139,6 +143,15 @@ message ResponseListJobs {
     optional int32 total = 2;
 }
 
+// Return a list of job schedules.
+message ResponseListJobSchedules {
+    repeated JobSchedule job_schedules = 1;
+
+    // The total number of job schedules (not just the ones included in this
+    // response).
+    optional int32 total = 2;
+}
+
 // Return a list of jobs.
 message ResponseListPolicies {
     repeated Policy policies = 1;
@@ -160,6 +173,11 @@ message ResponseListRateLimits {
 // A response containing the ID of a newly created job.
 message ResponseNewJob {
     required bytes job_id = 1;
+}
+
+// A response containing the ID of a newly created job schedule.
+message ResponseNewJobSchedule {
+    required bytes schedule_id = 1;
 }
 
 // A response containing the ID of a newly created policy.
