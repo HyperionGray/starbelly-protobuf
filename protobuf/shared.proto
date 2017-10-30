@@ -1,6 +1,35 @@
 syntax = "proto2";
 package starbelly;
 
+/// Generic CAPTCHA solver.
+message CaptchaSolver {
+    optional bytes solver_id = 1;
+    optional string name = 2;
+    optional string created_at = 3;
+    optional string updated_at = 4;
+    oneof SolverType {
+        CaptchaSolverAntigate antigate = 5;
+    }
+}
+
+enum CaptchaSolverAntigateCharacters {
+    ALPHANUMERIC = 1;
+    NUMBERS_ONLY = 2;
+    ALPHA_ONLY = 3;
+}
+
+// CAPTCHA solver for Antigate-compatible API.
+message CaptchaSolverAntigate {
+    optional string service_url = 1;
+    optional string api_key = 2;
+    optional bool require_phrase = 3;
+    optional bool case_sensitive = 4;
+    optional CaptchaSolverAntigateCharacters characters = 5;
+    optional bool require_math = 6;
+    optional int32 min_length = 7;
+    optional int32 max_length = 8;
+}
+
 /// Login information for a domain.
 message DomainLogin {
     optional string domain = 1;

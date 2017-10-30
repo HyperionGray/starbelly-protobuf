@@ -96,17 +96,20 @@ message Response {
     // The body is optional. Some commands only need to return success/error
     // data.
     oneof Body {
+        CaptchaSolver solver = 22;
         DomainLogin domain_login = 5;
         DomainLoginUser domain_login_user = 6;
         Job job = 7;
         JobSchedule job_schedule = 19;
         Policy policy = 8;
+        ResponseListCaptchaSolvers list_captcha_solvers = 23;
         ResponseListDomainLogins list_domain_logins = 9;
         ResponseListItems list_items = 10;
         ResponseListJobs list_jobs = 11;
         ResponseListJobSchedules list_job_schedules = 20;
         ResponseListPolicies list_policies = 12;
         ResponseListRateLimits list_rate_limits = 13;
+        ResponseNewCaptchaSolver new_solver = 24;
         ResponseNewJob new_job = 14;
         ResponseNewJobSchedule new_job_schedule = 21;
         ResponseNewPolicy new_policy = 15;
@@ -114,6 +117,15 @@ message Response {
         ResponsePerformanceProfile performance_profile = 17;
         ResponsePing ping = 18;
     }
+}
+
+// Return a list of CAPTCHA solvers.
+message ResponseListCaptchaSolvers {
+    repeated CaptchaSolver solvers = 1;
+
+    // The total number of solvers (not the count of solvers included in
+    // this response).
+    optional int32 total = 2;
 }
 
 // Return a list of domain logins.
@@ -168,6 +180,11 @@ message ResponseListRateLimits {
     // The total number of rate limits (not the count of rate limits included
     // in this response).
     optional int32 total = 2;
+}
+
+// A response containing the ID of a newly created CAPTCHA solver.
+message ResponseNewCaptchaSolver {
+    required bytes solver_id = 1;
 }
 
 // A response containing the ID of a newly created job.

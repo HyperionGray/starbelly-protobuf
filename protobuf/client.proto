@@ -15,22 +15,26 @@ message Request {
     // is required to have a Command, but I don't know how to make it required
     // in protobuf.
     oneof Command {
+        RequestDeleteCaptchaSolver delete_captcha_solver = 31;
         RequestDeleteDomainLogin delete_domain_login = 2;
         RequestDeleteJob delete_job = 3;
         RequestDeleteJobSchedule delete_job_schedule = 24;
         RequestDeletePolicy delete_policy = 4;
         RequestGetDomainLogin get_domain_login = 5;
+        RequestGetCaptchaSolver get_captcha_solver = 28;
         RequestGetJob get_job = 6;
         RequestGetJobSchedule get_job_schedule = 25;
         RequestGetJobItems get_job_items = 7;
         RequestGetPolicy get_policy = 8;
         RequestGetRateLimits get_rate_limits = 9;
+        RequestListCaptchaSolvers list_captcha_solvers = 29;
         RequestListDomainLogins list_domain_logins = 10;
         RequestListJobs list_jobs = 11;
         RequestListJobSchedules list_job_schedules = 26;
         RequestListPolicies list_policies = 12;
         RequestPerformanceProfile performance_profile = 13;
         RequestPing ping = 14;
+        RequestSetCaptchaSolver set_captcha_solver = 30;
         RequestSetDomainLogin set_domain_login = 15;
         RequestSetJob set_job = 16;
         RequestSetJobSchedule set_job_schedule = 27;
@@ -42,6 +46,11 @@ message Request {
         RequestSubscribeTaskMonitor subscribe_task_monitor = 22;
         RequestUnsubscribe unsubscribe = 23;
     }
+}
+
+// Delete a CAPTCHA solver.
+message RequestDeleteCaptchaSolver {
+    optional bytes solver_id = 1;
 }
 
 // Delete a credential and all of its passwords.
@@ -62,6 +71,11 @@ message RequestDeleteJobSchedule {
 // Delete a policy.
 message RequestDeletePolicy {
     required bytes policy_id = 1;
+}
+
+// Get a CAPTCHA solver by ID.
+message RequestGetCaptchaSolver {
+    required bytes solver_id = 1;
 }
 
 // Get credential data for the specified domain.
@@ -99,6 +113,11 @@ message RequestGetRateLimits {
     optional Page page = 1;
 }
 
+// Get a list of CAPTCHA solvers.
+message RequestListCaptchaSolvers {
+    optional Page page = 1;
+}
+
 // Get a list of domain logins.
 message RequestListDomainLogins {
     optional Page page = 1;
@@ -133,6 +152,11 @@ message RequestPerformanceProfile {
 message RequestPing {
     // This string will be sent back in the response.
     optional string pong = 1;
+}
+
+// Create or modify a CAPTCHA solver.
+message RequestSetCaptchaSolver {
+    optional CaptchaSolver solver = 1;
 }
 
 // Add or update metadata for a domain login.
