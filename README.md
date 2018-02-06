@@ -54,3 +54,8 @@ artifacts to the correct locations:
 
     $ cp dart/protobuf/*.dart ../starbelly-web-client/lib/protobuf/
     $ cp python/protobuf/*.py ../starbelly/protobuf/
+
+---
+
+[![define hyperion gray](https://hyperiongray.s3.amazonaws.com/define-hg.svg)](https://hyperiongray.com/?pk_campaign=github&pk_kwd=starbelly-protobuf "Hyperion Gray")
+
