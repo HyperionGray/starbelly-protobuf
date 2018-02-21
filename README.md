@@ -5,9 +5,9 @@
 This repository contains
 [protobuf](https://developers.google.com/protocol-buffers/) definitions for use
 with Starbelly. The [Starbelly
-server](https://gitlab.com/hyperion-gray/starbelly-protobuf) uses Python
+server](https://github.com/hyperiongray/starbelly-protobuf) uses Python
 bindings, and the [web
-client](https://gitlab.com/hyperion-gray/starbelly-web-client) uses Dart
+client](https://github.com/hyperiongray/starbelly-web-client) uses Dart
 bindings. Both sets of bindings are generated from the protobuf definitions
 bindings contained in this repository.
 
