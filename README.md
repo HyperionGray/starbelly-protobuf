@@ -20,9 +20,8 @@ this package is called `protobuf-compiler`.
 
 The `protoc` compiler has built-in support for Python. (It also supports C, C++,
 and Java, but we don't use those on this project.) Support for Dart requires
-some additional tools. First, install dart.
-
-    $ apt install dart
+some additional tools. First, install dart version 2.1 following [these
+instructions](https://www.dartlang.org/tools/sdk).
 
 Next, check out the Dart plugin for `protoc`. You should run this this command
 from the root of this repository.
@@ -58,4 +57,3 @@ artifacts to the correct locations:
 ---
 
 [![define hyperion gray](https://hyperiongray.s3.amazonaws.com/define-hg.svg)](https://hyperiongray.com/?pk_campaign=github&pk_kwd=starbelly-protobuf "Hyperion Gray")
-
