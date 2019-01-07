@@ -173,6 +173,7 @@ message Policy {
     optional string created_at = 3;
     optional string updated_at = 4;
 
+    optional bytes captcha_solver_id = 14;
     optional PolicyAuthentication authentication = 6;
     optional PolicyLimits limits = 7;
     repeated PolicyProxyRule proxy_rules = 8;
