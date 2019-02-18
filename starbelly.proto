@@ -1,0 +1,733 @@
+syntax = "proto2";
+
+/// Generic CAPTCHA solver.
+message CaptchaSolver {
+    optional bytes solver_id = 1;
+    optional string name = 2;
+    optional string created_at = 3;
+    optional string updated_at = 4;
+    oneof SolverType {
+        CaptchaSolverAntigate antigate = 5;
+    }
+}
+
+enum CaptchaSolverAntigateCharacters {
+    ALPHANUMERIC = 1;
+    NUMBERS_ONLY = 2;
+    ALPHA_ONLY = 3;
+}
+
+// CAPTCHA solver for Antigate-compatible API.
+message CaptchaSolverAntigate {
+    optional string service_url = 1;
+    optional string api_key = 2;
+    optional bool require_phrase = 3;
+    optional bool case_sensitive = 4;
+    optional CaptchaSolverAntigateCharacters characters = 5;
+    optional bool require_math = 6;
+    optional int32 min_length = 7;
+    optional int32 max_length = 8;
+}
+
+// Contains a crawl response, i.e. something downloaded by the crawler or the
+// error/exception that resulted from attempting to download it.
+message CrawlResponse {
+    optional bytes body = 1;
+    optional string completed_at = 2;
+    optional string content_type = 3;
+    optional double cost = 4;
+    optional double duration = 5;
+    optional string exception = 6;
+    repeated Header headers = 7;
+    optional bool is_compressed = 8;
+    optional bool is_success = 9;
+    optional bytes job_id = 10;
+    optional string started_at = 11;
+    optional int32 status_code = 12;
+    optional string url = 13;
+    optional string url_can = 14;
+}
+
+// An HTTP header.
+message Header {
+    optional string key = 1;
+    optional string value = 2;
+}
+
+/// Login information for a domain.
+message DomainLogin {
+    optional string domain = 1;
+    optional string login_url = 2;
+    optional string login_test = 3;
+    optional int32 auth_count = 4;
+    repeated DomainLoginUser users = 5;
+}
+
+/// Username/password for a domain.
+message DomainLoginUser {
+    optional string username = 1;
+    optional string password = 2;
+    optional bool working = 3;
+}
+
+// An Event is sent for any active subscription whenever data is available for
+// that subscription.
+message Event {
+    required int32 subscription_id = 1;
+
+    // An event is required to have a body, but I don't know how to make it
+    // required in protobuf.
+    oneof Body {
+        JobList job_list = 2;
+        JobScheduleList job_schedule_list = 7;
+        ResourceFrame resource_frame = 3;
+        SubscriptionClosed subscription_closed = 4;
+        SyncItem sync_item = 5;
+        TaskTree task_tree = 6;
+    }
+}
+
+// A crawl job.
+message Job {
+    required bytes job_id = 1;
+    repeated string seeds = 2;
+    optional Policy policy = 3;
+    optional string name = 4;
+    optional TagList tag_list = 5;
+    optional JobRunState run_state = 6;
+    optional string started_at = 7;
+    optional string completed_at = 8;
+    optional int32 item_count = 9 [default = -1];
+    optional int32 http_success_count = 10 [default = -1];
+    optional int32 http_error_count = 11 [default = -1];
+    optional int32 exception_count = 12 [default = -1];
+    map<int32, int32> http_status_counts = 13;
+}
+
+// A list of jobs.
+//
+// This seemingly stupid message is necessary so that a list of jobs can be
+// used as the body of a "oneof".
+message JobList {
+    repeated Job jobs = 1;
+}
+
+
+// The various run states a job may have.
+enum JobRunState {
+    CANCELLED = 1;
+    COMPLETED = 2;
+    PAUSED = 3;
+    PENDING = 4;
+    RUNNING = 5;
+    DELETED = 6; // This isn't really a valid run state. It indicates that job
+                 // no longer exists.
+}
+
+
+// Schedule information for a job.
+message JobSchedule {
+    required bytes schedule_id = 1;
+    optional string created_at = 2;
+    optional string updated_at = 3;
+    optional bool enabled = 4;
+    optional JobScheduleTimeUnit time_unit = 5;
+    optional int32 num_units = 6;
+    optional JobScheduleTiming timing = 7;
+    optional string schedule_name = 8;
+    optional string job_name = 9;
+    repeated string seeds = 10;
+    optional bytes policy_id = 11;
+    optional TagList tag_list = 12;
+    optional int32 job_count = 13;
+}
+
+// A list of job schedules.
+//
+// This seemingly stupid message is necessary so that a list of job schedules
+// can be used as the body of a "oneof".
+message JobScheduleList {
+    repeated JobSchedule job_schedules = 1;
+}
+
+// Define time units that may be used for scheduling a job.
+enum JobScheduleTimeUnit {
+    MINUTES = 1;
+    HOURS = 2;
+    DAYS = 3;
+    WEEKS = 4;
+    MONTHS = 5;
+    YEARS = 6;
+}
+
+// Define when a job should be scheduled.
+//
+// AFTER_PREVIOUS_JOB_FINISHED → Schedule a job X units of time after the
+// previous job completes.
+// REGULAR_INTERVAL → Schedule a job every X units of time; if the previous
+// job is still running, end it.
+enum JobScheduleTiming {
+    AFTER_PREVIOUS_JOB_FINISHED = 1;
+    REGULAR_INTERVAL = 2;
+}
+
+// For paginating large sets.
+message Page {
+    optional int32 limit = 1 [default = 10];
+    optional int32 offset = 2;
+}
+
+// Specifies how a regex pattern should be used.
+enum PatternMatch {
+    MATCHES = 1;
+    DOES_NOT_MATCH = 2;
+}
+
+// Settings that dictate crawler behavior. Policy is set on a job-by-job basis.
+message Policy {
+    optional bytes policy_id = 1;
+    optional string name = 2;
+    optional string created_at = 3;
+    optional string updated_at = 4;
+
+    optional bytes captcha_solver_id = 14;
+    optional PolicyAuthentication authentication = 6;
+    optional PolicyLimits limits = 7;
+    repeated PolicyProxyRule proxy_rules = 8;
+    repeated PolicyMimeTypeRule mime_type_rules = 9;
+    optional PolicyRobotsTxt robots_txt = 10;
+    optional PolicyUrlNormalization url_normalization = 13;
+    repeated PolicyUrlRule url_rules = 11;
+    repeated PolicyUserAgent user_agents = 12;
+}
+
+// Settings for authenticated crawling.
+message PolicyAuthentication {
+    optional bool enabled = 1;
+}
+
+// Specifies limits on how far or how long a crawl runs.
+message PolicyLimits {
+    optional double max_cost = 1;
+    optional double max_duration = 2;
+    optional int32 max_items = 3;
+}
+
+// Specifies whether to save or discard certain responses based on MIME type.
+//
+// If pattern is not specified, then this rule applies to all responses.
+message PolicyMimeTypeRule {
+    optional string pattern = 1;
+    optional PatternMatch match = 2;
+    optional bool save = 3;
+}
+
+// When and how to proxy requests.
+message PolicyProxyRule {
+    optional string pattern = 1;
+    optional PatternMatch match = 2;
+    optional string proxy_url = 3;
+}
+
+// Specify handling of robots.txt.
+message PolicyRobotsTxt {
+    enum Usage {
+        OBEY = 1;   // Obey robots.txt rules.
+        INVERT = 2; // Do the opposite of robots.txt rules.
+        IGNORE = 3; // Ignore robots.txt.
+    }
+
+    required Usage usage = 1;
+}
+
+message PolicyUrlNormalization {
+    optional bool enabled = 1;
+    repeated string strip_parameters = 2;
+}
+
+// A rule for adjusting a URL's cost.
+message PolicyUrlRule {
+    enum Action {
+        ADD = 1;      // Add `amount` to parent cost.
+        MULTIPLY = 2; // Multiply parent cost by `amount`.
+    }
+
+    optional string pattern = 1;
+    optional PatternMatch match = 2;
+    optional Action action = 3;
+    optional double amount = 4;
+}
+
+// Specifies a user agent string to send when downloading a resource.
+message PolicyUserAgent {
+    required string name = 1;
+}
+
+// Model for a rate limit.
+//
+// If domain is not specified, the global rate limit is modified. If delay
+// is not specified, then the rate limit for the specified domain is deleted.
+// Either delay or domain must be specified: you are not allowed to delete the
+// global limit.
+//
+// Name is optional: if the client sends a name, the server ignores it. The
+// server will always send a name to the client.
+message RateLimit {
+    optional string name = 1;
+    optional float delay = 2;
+    optional string domain = 3;
+}
+
+// A Request is issued by the client, and the server is expected to send exactly
+// 1 Response for each Request.
+message Request {
+    // The request ID is included in the response so that the client can
+    // correlate requests and responses. (Responses may arrive in a different
+    // order than the requests were sent.)
+    required int32 request_id = 1;
+
+    // Each request has a body that contains a specific command. Every request
+    // is required to have a Command, but I don't know how to make it required
+    // in protobuf.
+    oneof Command {
+        RequestDeleteCaptchaSolver delete_captcha_solver = 31;
+        RequestGetCaptchaSolver get_captcha_solver = 28;
+        RequestListCaptchaSolvers list_captcha_solvers = 29;
+        RequestSetCaptchaSolver set_captcha_solver = 30;
+
+        RequestDeleteJob delete_job = 3;
+        RequestGetJob get_job = 6;
+        RequestGetJobItems get_job_items = 7;
+        RequestListJobs list_jobs = 11;
+        RequestSetJob set_job = 16;
+
+        RequestDeleteJobSchedule delete_job_schedule = 24;
+        RequestGetJobSchedule get_job_schedule = 25;
+        RequestListJobSchedules list_job_schedules = 26;
+        RequestSetJobSchedule set_job_schedule = 27;
+
+        RequestDeletePolicy delete_policy = 4;
+        RequestGetPolicy get_policy = 8;
+        RequestListPolicies list_policies = 12;
+        RequestSetPolicy set_policy = 17;
+
+        RequestDeleteDomainLogin delete_domain_login = 2;
+        RequestGetDomainLogin get_domain_login = 5;
+        RequestListDomainLogins list_domain_logins = 10;
+        RequestSetDomainLogin set_domain_login = 15;
+
+        RequestGetRateLimits get_rate_limits = 9;
+        RequestSetRateLimit set_rate_limit = 18;
+
+        RequestPerformanceProfile performance_profile = 13;
+
+        RequestSubscribeJobStatus subscribe_job_status = 19;
+        RequestSubscribeJobSync subscribe_job_sync = 20;
+        RequestSubscribeResourceMonitor subscribe_resource_monitor = 21;
+        RequestSubscribeTaskMonitor subscribe_task_monitor = 22;
+        RequestUnsubscribe unsubscribe = 23;
+    }
+}
+
+// The server sends exactly one Response for each Request it receives.
+message Response {
+    // The request ID will match the request that prompted this response.
+    required int32 request_id = 1;
+    required bool is_success = 2;
+    optional string error_message = 3;
+
+    // The body is optional. Some commands only need to return success/error
+    // data.
+    oneof Body {
+        CaptchaSolver solver = 22;
+        ResponseNewCaptchaSolver new_solver = 24;
+        ResponseListCaptchaSolvers list_captcha_solvers = 23;
+
+        DomainLogin domain_login = 5;
+        DomainLoginUser domain_login_user = 6;
+        ResponseListDomainLogins list_domain_logins = 9;
+
+        Job job = 7;
+        ResponseNewJob new_job = 14;
+        ResponseListItems list_items = 10;
+        ResponseListJobs list_jobs = 11;
+
+        JobSchedule job_schedule = 19;
+        ResponseNewJobSchedule new_job_schedule = 21;
+        ResponseListJobSchedules list_job_schedules = 20;
+
+        Policy policy = 8;
+        ResponseNewPolicy new_policy = 15;
+        ResponseListPolicies list_policies = 12;
+
+        ResponseListRateLimits list_rate_limits = 13;
+        ResponseNewSubscription new_subscription = 16;
+        ResponsePerformanceProfile performance_profile = 17;
+    }
+}
+
+// Delete a CAPTCHA solver.
+message RequestDeleteCaptchaSolver {
+    optional bytes solver_id = 1;
+}
+
+// Get a CAPTCHA solver by ID.
+message RequestGetCaptchaSolver {
+    required bytes solver_id = 1;
+}
+
+// Get a list of CAPTCHA solvers.
+message RequestListCaptchaSolvers {
+    optional Page page = 1;
+}
+
+// Return a list of CAPTCHA solvers.
+message ResponseListCaptchaSolvers {
+    repeated CaptchaSolver solvers = 1;
+
+    // The total number of solvers (not the count of solvers included in
+    // this response).
+    optional int32 total = 2;
+}
+
+// Create or modify a CAPTCHA solver.
+message RequestSetCaptchaSolver {
+    optional CaptchaSolver solver = 1;
+}
+
+// A response containing the ID of a newly created CAPTCHA solver.
+message ResponseNewCaptchaSolver {
+    required bytes solver_id = 1;
+}
+
+// Delete a credential and all of its passwords.
+message RequestDeleteDomainLogin {
+    optional string domain = 1;
+}
+
+// Get credential data for the specified domain.
+message RequestGetDomainLogin {
+    required string domain = 1;
+}
+
+// Get a list of domain logins.
+message RequestListDomainLogins {
+    optional Page page = 1;
+}
+
+// Return a list of domain logins.
+message ResponseListDomainLogins {
+    repeated DomainLogin logins = 1;
+
+    // The total number of domains (not the count of domains included in
+    // this response).
+    optional int32 total = 2;
+}
+
+// Add or update metadata for a domain login.
+message RequestSetDomainLogin {
+    optional DomainLogin login = 1;
+}
+
+
+// Delete a job and all of its items.
+message RequestDeleteJob {
+    required bytes job_id = 1;
+}
+
+// Get metadata for the specified job.
+message RequestGetJob {
+    required bytes job_id = 1;
+}
+
+// Get a list of jobs.
+message RequestListJobs {
+    optional Page page = 1;
+    optional string started_after = 2;
+    optional string tag = 3;
+    optional bytes schedule_id = 4;
+}
+
+// Return a list of jobs.
+message ResponseListJobs {
+    repeated Job jobs = 1;
+
+    // The total number of jobs (not the count of jobs included in this
+    // response).
+    optional int32 total = 2;
+}
+
+// Create a job or update state for an existing job.
+//
+// Policy must be provided when creating a job and may not be changed when
+// updating a job.
+message RequestSetJob {
+    optional bytes job_id = 1;
+    optional JobRunState run_state = 2;
+    optional bytes policy_id = 3;
+    repeated string seeds = 4;
+    optional string name = 5;
+    optional TagList tag_list = 6;
+}
+
+// A response containing the ID of a newly created job.
+message ResponseNewJob {
+    required bytes job_id = 1;
+}
+
+// Get a list of items (crawl responses) from a job.
+message RequestGetJobItems {
+    required bytes job_id = 1;
+    optional bool include_success = 2;
+    optional bool include_error = 3;
+    optional bool include_exception = 4;
+    optional bool compression_ok = 5 [default = true];
+    optional Page page = 6;
+}
+
+// Return a list of items (crawl responses) for a job.
+message ResponseListItems {
+    repeated CrawlResponse items = 1;
+
+    // The total number of items (not the count of items included in this
+    // response).
+    optional int32 total = 2;
+}
+
+// Delete a job schedule.
+message RequestDeleteJobSchedule {
+    required bytes schedule_id = 1;
+}
+
+// Get metadata for the specified job schedule.
+message RequestGetJobSchedule {
+    required bytes schedule_id = 1;
+}
+
+// Get a list of job schedules.
+message RequestListJobSchedules {
+    optional Page page = 1;
+}
+
+// Return a list of job schedules.
+message ResponseListJobSchedules {
+    repeated JobSchedule job_schedules = 1;
+
+    // The total number of job schedules (not just the ones included in this
+    // response).
+    optional int32 total = 2;
+}
+
+// Create or update a job schedule.
+message RequestSetJobSchedule {
+    optional JobSchedule job_schedule = 1;
+}
+
+// A response containing the ID of a newly created job schedule.
+message ResponseNewJobSchedule {
+    required bytes schedule_id = 1;
+}
+
+// Delete a policy.
+message RequestDeletePolicy {
+    required bytes policy_id = 1;
+}
+
+// Get a policy.
+message RequestGetPolicy {
+    required bytes policy_id = 1;
+}
+
+// Get a list of policies.
+message RequestListPolicies {
+    optional Page page = 1;
+}
+
+// Return a list of jobs.
+message ResponseListPolicies {
+    repeated Policy policies = 1;
+
+    // The total number of jobs (not the count of jobs included in this
+    // response).
+    optional int32 total = 2;
+}
+
+// Create or update a crawl policy.
+//
+// If the policy's ID is blank, then the server will create a new policy.
+// If the ID is not blank, then the server will update the corresponding policy.
+message RequestSetPolicy {
+    required Policy policy = 1;
+}
+
+// A response containing the ID of a newly created policy.
+message ResponseNewPolicy {
+    required bytes policy_id = 1;
+}
+
+// Show rate limits.
+message RequestGetRateLimits {
+    optional Page page = 1;
+}
+
+// Return a list of rate limits.
+message ResponseListRateLimits {
+    repeated RateLimit rate_limits = 1;
+
+    // The total number of rate limits (not the count of rate limits included
+    // in this response).
+    optional int32 total = 2;
+}
+
+// Set a rate limit.
+message RequestSetRateLimit {
+    required RateLimit rate_limit = 1;
+}
+
+// Request a performance profile.
+message RequestPerformanceProfile {
+    optional double duration = 1 [default = 5.0];
+    optional string sort_by = 2 [default = "total_time"];
+    optional int32 top_n = 3;
+}
+
+// Performance profile data for a single function.
+message PerformanceProfileFunction {
+    optional string file = 1;
+    optional int32 line_number = 2;
+    optional string function = 3;
+    optional int32 calls = 4;
+    optional int32 non_recursive_calls = 5;
+    optional double total_time = 6;
+    optional double cumulative_time = 7;
+}
+
+// Contains performance profile data.
+message ResponsePerformanceProfile {
+    optional int32 total_calls = 1;
+    optional double total_time = 2;
+    repeated PerformanceProfileFunction functions = 3;
+}
+
+// Subscribe to job status, e.g. run state, statistics, etc.
+message RequestSubscribeJobStatus {
+    // The minimum amount of time between jobs status messages. If multiple
+    // job statuses change in rapid succession, those changes are coalesced into
+    // a single event.
+    optional double min_interval = 1 [default = 1.0];
+}
+
+// Synchronize crawl responses.
+message RequestSubscribeJobSync {
+    required bytes job_id = 1;
+    optional bytes sync_token = 2;
+    optional bool compression_ok = 3 [default = true];
+}
+
+// An item sent when syncing a crawl job. One event is sent for each crawl
+// response.
+message SyncItem {
+    required CrawlResponse item = 1;
+    required bytes token = 2;
+}
+
+// A wrapper for all server messages that contains either a response to a
+// command or a subscription event.
+message ServerMessage {
+    oneof MessageType {
+        Event event = 1;
+        Response response = 2;
+    }
+}
+
+// Subscribe to resource monitoring, e.g. CPU usage, memory usage,
+// downloads/sec, etc.
+message RequestSubscribeResourceMonitor {
+    optional int32 history = 1 [default = 300];
+}
+
+// Subscribe to updates about resource usage (CPU, memory, disk, etc.)
+message RequestSubscribeTaskMonitor {
+    optional double period = 1 [default = 3];
+    optional int32 top_n = 2 [default = 20];
+}
+
+// A response containing the ID of a newly created subscription.
+message ResponseNewSubscription {
+    required int32 subscription_id = 1;
+}
+
+// Close the specified subscription.
+message RequestUnsubscribe {
+    required int32 subscription_id = 1;
+}
+
+// Sent when the server ends a subscription.
+message SubscriptionClosed {
+    enum Reason {
+        COMPLETE = 1;
+        ERROR = 2;
+    }
+
+    required Reason reason = 1;
+    optional string message = 2;
+}
+
+// Data about resource consumption.
+message ResourceFrame {
+    optional string timestamp = 1;
+    repeated ResourceFrameCpu cpus = 2;
+    optional ResourceFrameMemory memory = 3;
+    repeated ResourceFrameDisk disks = 4;
+    repeated ResourceFrameNetwork networks = 5;
+    repeated ResourceFrameJob jobs = 6;
+    optional int32 current_downloads = 7;
+    optional int32 maximum_downloads = 8;
+    optional int32 rate_limiter = 9;
+}
+
+// CPU usage.
+message ResourceFrameCpu {
+    optional double usage = 1;
+}
+
+// Resources used by a crawl job.
+message ResourceFrameJob {
+    optional bytes job_id = 1;
+    optional string name = 2;
+    optional int32 current_downloads = 3;
+}
+
+// Disk usage.
+message ResourceFrameDisk {
+    optional string mount = 1;
+    optional int64 used = 2;
+    optional int64 total = 3;
+}
+
+// Memory usage.
+message ResourceFrameMemory {
+    optional int64 used = 1;
+    optional int64 total = 2;
+}
+
+// Network usage.
+message ResourceFrameNetwork {
+    optional string name = 1;
+    optional int64 sent = 2;
+    optional int64 received = 3;
+}
+
+// A list of tags.
+//
+// This seemingly pointless message is actually useful because it allows us
+// to differentiate between an empty list and a null list.
+message TagList {
+    repeated string tags = 1;
+}
+
+// A subtree of Trio tasks.
+message TaskTree {
+    optional string name = 1;
+    repeated TaskTree subtasks = 2;
+}

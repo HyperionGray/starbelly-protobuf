@@ -41,9 +41,9 @@ To compile protobuf definitions, run this command from the root of this
 repository:
 
     $ protoc --plugin=dart-protoc-plugin/bin/protoc-gen-dart \
-             --dart_out=dart \
-             --python_out=python \
-             protobuf/*.proto
+             --dart_out=build \
+             --python_out=build \
+             starbelly.proto
 
 The resulting files will be placed in the `dart` and `python` directories,
 respectively, and may be copied from there into other projects. If your
@@ -51,8 +51,8 @@ respectively, and may be copied from there into other projects. If your
 directory as this project, then you can use these commands to copy the build
 artifacts to the correct locations:
 
-    $ cp dart/protobuf/*.dart ../starbelly-web-client/lib/protobuf/
-    $ cp python/protobuf/*.py ../starbelly/protobuf/
+    $ cp build/*.dart ../starbelly-web-client/lib/protobuf
+    $ cp build/starbelly_pb2.py ../starbelly/starbelly/starbelly_pb2.py
 
 ---
 
