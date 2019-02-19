@@ -33,6 +33,7 @@ Now install the plugin's dependencies:
     $ cd dart-protoc-plugin
     $ pub get
 
+You will also need Docker installed to build documentation for the protobufs.
 Now you should be ready to compile the protobuf definitions.
 
 ## Compilation
@@ -45,14 +46,19 @@ repository:
              --python_out=build \
              starbelly.proto
 
-The resulting files will be placed in the `dart` and `python` directories,
-respectively, and may be copied from there into other projects. If your
+To build documentation:
+
+    $ docker run --rm -v "$PWD/build:/out" -v "$PWD:/protos" \
+             pseudomuto/protoc-gen-doc --doc_opt=/protos/template.html,protobuf.html
+
+The resulting files will be placed in the `build` directory. If your
 `starbelly` and `starbelly-web-client` directories are checked out in the same
 directory as this project, then you can use these commands to copy the build
 artifacts to the correct locations:
 
-    $ cp build/*.dart ../starbelly-web-client/lib/protobuf
-    $ cp build/starbelly_pb2.py ../starbelly/starbelly/starbelly_pb2.py
+    $ cp build/*.dart ../starbelly-web-client/lib/protobuf/
+    $ cp build/starbelly_pb2.py ../starbelly/starbelly/
+    $ cp build/protobuf.html ../starbelly/docs/
 
 ---
 

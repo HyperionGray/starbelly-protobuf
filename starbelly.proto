@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-/// Generic CAPTCHA solver.
+// Generic CAPTCHA solver.
 message CaptchaSolver {
     optional bytes solver_id = 1;
     optional string name = 2;
@@ -29,8 +29,7 @@ message CaptchaSolverAntigate {
     optional int32 max_length = 8;
 }
 
-// Contains a crawl response, i.e. something downloaded by the crawler or the
-// error/exception that resulted from attempting to download it.
+// Contains a crawl response, i.e. something downloaded by the crawler or the error/exception that resulted from attempting to download it.
 message CrawlResponse {
     optional bytes body = 1;
     optional string completed_at = 2;
@@ -54,32 +53,28 @@ message Header {
     optional string value = 2;
 }
 
-/// Login information for a domain.
+// Login information for a domain.
 message DomainLogin {
     optional string domain = 1;
     optional string login_url = 2;
     optional string login_test = 3;
-    optional int32 auth_count = 4;
     repeated DomainLoginUser users = 5;
 }
 
-/// Username/password for a domain.
+// Username/password for a domain.
 message DomainLoginUser {
     optional string username = 1;
     optional string password = 2;
     optional bool working = 3;
 }
 
-// An Event is sent for any active subscription whenever data is available for
-// that subscription.
+// An Event is sent for any active subscription whenever data is available for that subscription.
 message Event {
     required int32 subscription_id = 1;
 
-    // An event is required to have a body, but I don't know how to make it
-    // required in protobuf.
     oneof Body {
         JobList job_list = 2;
-        JobScheduleList job_schedule_list = 7;
+        ScheduleList schedule_list = 7;
         ResourceFrame resource_frame = 3;
         SubscriptionClosed subscription_closed = 4;
         SyncItem sync_item = 5;
@@ -106,8 +101,7 @@ message Job {
 
 // A list of jobs.
 //
-// This seemingly stupid message is necessary so that a list of jobs can be
-// used as the body of a "oneof".
+// This seemingly stupid message is necessary so that a list of jobs can be used as the body of a "oneof".
 message JobList {
     repeated Job jobs = 1;
 }
@@ -120,20 +114,19 @@ enum JobRunState {
     PAUSED = 3;
     PENDING = 4;
     RUNNING = 5;
-    DELETED = 6; // This isn't really a valid run state. It indicates that job
-                 // no longer exists.
+    DELETED = 6; // This isn't really a valid run state. It indicates that job no longer exists.
 }
 
 
 // Schedule information for a job.
-message JobSchedule {
+message Schedule {
     required bytes schedule_id = 1;
     optional string created_at = 2;
     optional string updated_at = 3;
     optional bool enabled = 4;
-    optional JobScheduleTimeUnit time_unit = 5;
+    optional ScheduleTimeUnit time_unit = 5;
     optional int32 num_units = 6;
-    optional JobScheduleTiming timing = 7;
+    optional ScheduleTiming timing = 7;
     optional string schedule_name = 8;
     optional string job_name = 9;
     repeated string seeds = 10;
@@ -144,14 +137,13 @@ message JobSchedule {
 
 // A list of job schedules.
 //
-// This seemingly stupid message is necessary so that a list of job schedules
-// can be used as the body of a "oneof".
-message JobScheduleList {
-    repeated JobSchedule job_schedules = 1;
+// This seemingly stupid message is necessary so that a list of job schedules can be used as the body of a "oneof".
+message ScheduleList {
+    repeated Schedule schedules = 1;
 }
 
 // Define time units that may be used for scheduling a job.
-enum JobScheduleTimeUnit {
+enum ScheduleTimeUnit {
     MINUTES = 1;
     HOURS = 2;
     DAYS = 3;
@@ -161,14 +153,9 @@ enum JobScheduleTimeUnit {
 }
 
 // Define when a job should be scheduled.
-//
-// AFTER_PREVIOUS_JOB_FINISHED → Schedule a job X units of time after the
-// previous job completes.
-// REGULAR_INTERVAL → Schedule a job every X units of time; if the previous
-// job is still running, end it.
-enum JobScheduleTiming {
-    AFTER_PREVIOUS_JOB_FINISHED = 1;
-    REGULAR_INTERVAL = 2;
+enum ScheduleTiming {
+    AFTER_PREVIOUS_JOB_FINISHED = 1; // Schedule a job X units of time after the previous job completes.
+    REGULAR_INTERVAL = 2; // Schedule a job every X units of time; if the previous job is still running, end it.
 }
 
 // For paginating large sets.
@@ -263,32 +250,11 @@ message PolicyUserAgent {
     required string name = 1;
 }
 
-// Model for a rate limit.
-//
-// If domain is not specified, the global rate limit is modified. If delay
-// is not specified, then the rate limit for the specified domain is deleted.
-// Either delay or domain must be specified: you are not allowed to delete the
-// global limit.
-//
-// Name is optional: if the client sends a name, the server ignores it. The
-// server will always send a name to the client.
-message RateLimit {
-    optional string name = 1;
-    optional float delay = 2;
-    optional string domain = 3;
-}
-
-// A Request is issued by the client, and the server is expected to send exactly
-// 1 Response for each Request.
+// A Request is issued by the client, and the server is expected to send exactly 1 Response for each Request.
 message Request {
-    // The request ID is included in the response so that the client can
-    // correlate requests and responses. (Responses may arrive in a different
-    // order than the requests were sent.)
+    // The request ID is included in the response so that the client can correlate requests and responses. (Responses may arrive in a different order than the requests were sent.)
     required int32 request_id = 1;
 
-    // Each request has a body that contains a specific command. Every request
-    // is required to have a Command, but I don't know how to make it required
-    // in protobuf.
     oneof Command {
         RequestDeleteCaptchaSolver delete_captcha_solver = 31;
         RequestGetCaptchaSolver get_captcha_solver = 28;
@@ -301,10 +267,10 @@ message Request {
         RequestListJobs list_jobs = 11;
         RequestSetJob set_job = 16;
 
-        RequestDeleteJobSchedule delete_job_schedule = 24;
-        RequestGetJobSchedule get_job_schedule = 25;
-        RequestListJobSchedules list_job_schedules = 26;
-        RequestSetJobSchedule set_job_schedule = 27;
+        RequestDeleteSchedule delete_schedule = 24;
+        RequestGetSchedule get_schedule = 25;
+        RequestListSchedules list_schedules = 26;
+        RequestSetSchedule set_schedule = 27;
 
         RequestDeletePolicy delete_policy = 4;
         RequestGetPolicy get_policy = 8;
@@ -316,7 +282,7 @@ message Request {
         RequestListDomainLogins list_domain_logins = 10;
         RequestSetDomainLogin set_domain_login = 15;
 
-        RequestGetRateLimits get_rate_limits = 9;
+        RequestListRateLimits list_rate_limits = 9;
         RequestSetRateLimit set_rate_limit = 18;
 
         RequestPerformanceProfile performance_profile = 13;
@@ -336,8 +302,7 @@ message Response {
     required bool is_success = 2;
     optional string error_message = 3;
 
-    // The body is optional. Some commands only need to return success/error
-    // data.
+    // The body is optional. Some commands only need to return success/error data.
     oneof Body {
         CaptchaSolver solver = 22;
         ResponseNewCaptchaSolver new_solver = 24;
@@ -352,9 +317,9 @@ message Response {
         ResponseListItems list_items = 10;
         ResponseListJobs list_jobs = 11;
 
-        JobSchedule job_schedule = 19;
-        ResponseNewJobSchedule new_job_schedule = 21;
-        ResponseListJobSchedules list_job_schedules = 20;
+        Schedule schedule = 19;
+        ResponseNewSchedule new_schedule = 21;
+        ResponseListSchedules list_schedules = 20;
 
         Policy policy = 8;
         ResponseNewPolicy new_policy = 15;
@@ -385,8 +350,7 @@ message RequestListCaptchaSolvers {
 message ResponseListCaptchaSolvers {
     repeated CaptchaSolver solvers = 1;
 
-    // The total number of solvers (not the count of solvers included in
-    // this response).
+    // The total number of solvers (not the count of solvers included in this response).
     optional int32 total = 2;
 }
 
@@ -419,8 +383,7 @@ message RequestListDomainLogins {
 message ResponseListDomainLogins {
     repeated DomainLogin logins = 1;
 
-    // The total number of domains (not the count of domains included in
-    // this response).
+    // The total number of domains (not the count of domains included in this response).
     optional int32 total = 2;
 }
 
@@ -452,15 +415,13 @@ message RequestListJobs {
 message ResponseListJobs {
     repeated Job jobs = 1;
 
-    // The total number of jobs (not the count of jobs included in this
-    // response).
+    // The total number of jobs (not the count of jobs included in this response).
     optional int32 total = 2;
 }
 
 // Create a job or update state for an existing job.
 //
-// Policy must be provided when creating a job and may not be changed when
-// updating a job.
+// Policy must be provided when creating a job and may not be changed when updating a job.
 message RequestSetJob {
     optional bytes job_id = 1;
     optional JobRunState run_state = 2;
@@ -489,42 +450,40 @@ message RequestGetJobItems {
 message ResponseListItems {
     repeated CrawlResponse items = 1;
 
-    // The total number of items (not the count of items included in this
-    // response).
+    // The total number of items (not the count of items included in this response).
     optional int32 total = 2;
 }
 
 // Delete a job schedule.
-message RequestDeleteJobSchedule {
+message RequestDeleteSchedule {
     required bytes schedule_id = 1;
 }
 
 // Get metadata for the specified job schedule.
-message RequestGetJobSchedule {
+message RequestGetSchedule {
     required bytes schedule_id = 1;
 }
 
 // Get a list of job schedules.
-message RequestListJobSchedules {
+message RequestListSchedules {
     optional Page page = 1;
 }
 
 // Return a list of job schedules.
-message ResponseListJobSchedules {
-    repeated JobSchedule job_schedules = 1;
+message ResponseListSchedules {
+    repeated Schedule schedules = 1;
 
-    // The total number of job schedules (not just the ones included in this
-    // response).
+    // The total number of job schedules (not just the ones included in this response).
     optional int32 total = 2;
 }
 
 // Create or update a job schedule.
-message RequestSetJobSchedule {
-    optional JobSchedule job_schedule = 1;
+message RequestSetSchedule {
+    optional Schedule schedule = 1;
 }
 
 // A response containing the ID of a newly created job schedule.
-message ResponseNewJobSchedule {
+message ResponseNewSchedule {
     required bytes schedule_id = 1;
 }
 
@@ -547,15 +506,13 @@ message RequestListPolicies {
 message ResponseListPolicies {
     repeated Policy policies = 1;
 
-    // The total number of jobs (not the count of jobs included in this
-    // response).
+    // The total number of jobs (not the count of jobs included in this response).
     optional int32 total = 2;
 }
 
 // Create or update a crawl policy.
 //
-// If the policy's ID is blank, then the server will create a new policy.
-// If the ID is not blank, then the server will update the corresponding policy.
+// If the policy's ID is blank, then the server will create a new policy. If the ID is not blank, then the server will update the corresponding policy.
 message RequestSetPolicy {
     required Policy policy = 1;
 }
@@ -565,8 +522,20 @@ message ResponseNewPolicy {
     required bytes policy_id = 1;
 }
 
+// Model for a rate limit.
+//
+// If domain is not specified, the global rate limit is modified. If delay is not specified, then the rate limit for the specified domain is deleted. Either delay or domain must be specified: you are not allowed to delete the global limit.
+//
+// If the client sends a name, the server ignores it. The server will always send a name to the client.
+message RateLimit {
+    optional string name = 1;
+    optional float delay = 2;
+    optional bytes token = 3;
+    optional string domain = 4;
+}
+
 // Show rate limits.
-message RequestGetRateLimits {
+message RequestListRateLimits {
     optional Page page = 1;
 }
 
@@ -574,14 +543,14 @@ message RequestGetRateLimits {
 message ResponseListRateLimits {
     repeated RateLimit rate_limits = 1;
 
-    // The total number of rate limits (not the count of rate limits included
-    // in this response).
+    // The total number of rate limits (not the count of rate limits included in this response).
     optional int32 total = 2;
 }
 
 // Set a rate limit.
 message RequestSetRateLimit {
-    required RateLimit rate_limit = 1;
+    optional string domain = 1;
+    optional float delay = 2;
 }
 
 // Request a performance profile.
@@ -611,9 +580,7 @@ message ResponsePerformanceProfile {
 
 // Subscribe to job status, e.g. run state, statistics, etc.
 message RequestSubscribeJobStatus {
-    // The minimum amount of time between jobs status messages. If multiple
-    // job statuses change in rapid succession, those changes are coalesced into
-    // a single event.
+    // The minimum amount of time between jobs status messages. If multiple job statuses change in rapid succession, those changes are coalesced into a single event.
     optional double min_interval = 1 [default = 1.0];
 }
 
@@ -624,15 +591,13 @@ message RequestSubscribeJobSync {
     optional bool compression_ok = 3 [default = true];
 }
 
-// An item sent when syncing a crawl job. One event is sent for each crawl
-// response.
+// An item sent when syncing a crawl job. One event is sent for each crawl response.
 message SyncItem {
     required CrawlResponse item = 1;
     required bytes token = 2;
 }
 
-// A wrapper for all server messages that contains either a response to a
-// command or a subscription event.
+// A wrapper for all server messages that contains either a response to a command or a subscription event.
 message ServerMessage {
     oneof MessageType {
         Event event = 1;
@@ -640,8 +605,7 @@ message ServerMessage {
     }
 }
 
-// Subscribe to resource monitoring, e.g. CPU usage, memory usage,
-// downloads/sec, etc.
+// Subscribe to resource monitoring, e.g. CPU usage, memory usage, downloads/sec, etc.
 message RequestSubscribeResourceMonitor {
     optional int32 history = 1 [default = 300];
 }
@@ -720,8 +684,7 @@ message ResourceFrameNetwork {
 
 // A list of tags.
 //
-// This seemingly pointless message is actually useful because it allows us
-// to differentiate between an empty list and a null list.
+// This seemingly pointless message is actually useful because it allows us to differentiate between an empty list and a null list.
 message TagList {
     repeated string tags = 1;
 }
