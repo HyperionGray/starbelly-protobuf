@@ -88,7 +88,7 @@ message Job {
     repeated string seeds = 2;
     optional Policy policy = 3;
     optional string name = 4;
-    optional TagList tag_list = 5;
+    repeated string tags = 5;
     optional JobRunState run_state = 6;
     optional string started_at = 7;
     optional string completed_at = 8;
@@ -120,7 +120,7 @@ enum JobRunState {
 
 // Schedule information for a job.
 message Schedule {
-    required bytes schedule_id = 1;
+    optional bytes schedule_id = 1;
     optional string created_at = 2;
     optional string updated_at = 3;
     optional bool enabled = 4;
@@ -131,7 +131,7 @@ message Schedule {
     optional string job_name = 9;
     repeated string seeds = 10;
     optional bytes policy_id = 11;
-    optional TagList tag_list = 12;
+    repeated string tags = 12;
     optional int32 job_count = 13;
 }
 
@@ -421,14 +421,14 @@ message ResponseListJobs {
 
 // Create a job or update state for an existing job.
 //
-// Policy must be provided when creating a job and may not be changed when updating a job.
+// Name, seeds, tags, and policy may only be specified for new jobs. Once a job is created, only the run state may be changed.
 message RequestSetJob {
     optional bytes job_id = 1;
     optional JobRunState run_state = 2;
     optional bytes policy_id = 3;
     repeated string seeds = 4;
     optional string name = 5;
-    optional TagList tag_list = 6;
+    repeated string tags = 6;
 }
 
 // A response containing the ID of a newly created job.
@@ -680,13 +680,6 @@ message ResourceFrameNetwork {
     optional string name = 1;
     optional int64 sent = 2;
     optional int64 received = 3;
-}
-
-// A list of tags.
-//
-// This seemingly pointless message is actually useful because it allows us to differentiate between an empty list and a null list.
-message TagList {
-    repeated string tags = 1;
 }
 
 // A subtree of Trio tasks.
