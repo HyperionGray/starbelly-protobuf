@@ -270,6 +270,7 @@ message Request {
         RequestDeleteSchedule delete_schedule = 24;
         RequestGetSchedule get_schedule = 25;
         RequestListSchedules list_schedules = 26;
+        RequestListScheduleJobs list_schedule_jobs = 32;
         RequestSetSchedule set_schedule = 27;
 
         RequestDeletePolicy delete_policy = 4;
@@ -320,6 +321,7 @@ message Response {
         Schedule schedule = 19;
         ResponseNewSchedule new_schedule = 21;
         ResponseListSchedules list_schedules = 20;
+        ResponseListScheduleJobs list_schedule_jobs = 25;
 
         Policy policy = 8;
         ResponseNewPolicy new_policy = 15;
@@ -474,6 +476,21 @@ message ResponseListSchedules {
     repeated Schedule schedules = 1;
 
     // The total number of job schedules (not just the ones included in this response).
+    optional int32 total = 2;
+}
+
+// Get a list of jobs for a given schedules.
+message RequestListScheduleJobs {
+    required bytes schedule_id = 1;
+    optional Page page = 2;
+}
+
+// Return a list of jobs for a given schedules.
+message ResponseListScheduleJobs {
+    repeated Job jobs = 1;
+
+    // The total number of jobs associated with this schedule (not just the
+    // ones included in this response).
     optional int32 total = 2;
 }
 
