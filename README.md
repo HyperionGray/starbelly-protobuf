@@ -26,11 +26,11 @@ instructions](https://www.dartlang.org/tools/sdk).
 Next, check out the Dart plugin for `protoc`. You should run this this command
 from the root of this repository.
 
-    $ git clone https://github.com/dart-lang/dart-protoc-plugin
+    $ git clone https://github.com/dart-lang/protobuf.git
 
 Now install the plugin's dependencies:
 
-    $ cd dart-protoc-plugin
+    $ cd protobuf/protoc_plugin
     $ pub get
 
 You will also need Docker installed to build documentation for the protobufs.
@@ -41,7 +41,7 @@ Now you should be ready to compile the protobuf definitions.
 To compile protobuf definitions, run this command from the root of this
 repository:
 
-    $ protoc --plugin=dart-protoc-plugin/bin/protoc-gen-dart \
+    $ protoc --plugin=protobuf/protoc_plugin/bin/protoc-gen-dart \
              --dart_out=build \
              --python_out=build \
              starbelly.proto
