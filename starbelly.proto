@@ -630,7 +630,6 @@ message RequestSubscribeResourceMonitor {
 // Subscribe to updates about resource usage (CPU, memory, disk, etc.)
 message RequestSubscribeTaskMonitor {
     optional double period = 1 [default = 3];
-    optional int32 top_n = 2 [default = 20];
 }
 
 // A response containing the ID of a newly created subscription.
