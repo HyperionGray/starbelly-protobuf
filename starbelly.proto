@@ -2,100 +2,159 @@ syntax = "proto2";
 
 // Generic CAPTCHA solver.
 message CaptchaSolver {
+    // Unique identifier.
     optional bytes solver_id = 1;
+    // Name of CAPTCHA solver entry.
     optional string name = 2;
+    // When this entry was created. (RFC-3339)
     optional string created_at = 3;
+    // When this entry was last updated. (RFC-3339)
     optional string updated_at = 4;
     oneof SolverType {
+        // Extra configuration for Antigate CAPTCHA solver.
         CaptchaSolverAntigate antigate = 5;
     }
 }
 
 enum CaptchaSolverAntigateCharacters {
+    // The CAPTCHA may contain any alphanumeric characters.
     ALPHANUMERIC = 1;
+    // The CAPTCHA contains numeric characters only.
     NUMBERS_ONLY = 2;
+    // The CAPTCHA contains alphabetic characters only.
     ALPHA_ONLY = 3;
 }
 
 // CAPTCHA solver for Antigate-compatible API.
 message CaptchaSolverAntigate {
+    // The CAPTCHA solving URL endpoint.
     optional string service_url = 1;
+    // An API key.
     optional string api_key = 2;
+    // Some CAPTCHAs use a phrase instead of a short sequence of characters.
     optional bool require_phrase = 3;
+    // Some CAPTCHAs are case sensitive.
     optional bool case_sensitive = 4;
+    // CAPTCHAs may permit different sets of characters.
     optional CaptchaSolverAntigateCharacters characters = 5;
+    // Some CAPTCHAs require solving a match problem.
     optional bool require_math = 6;
+    // The minimum length of the CAPTCHA.
     optional int32 min_length = 7;
+    // The maximum length of the CAPTCHA.
     optional int32 max_length = 8;
 }
 
 // Contains a crawl response, i.e. something downloaded by the crawler or the error/exception that resulted from attempting to download it.
 message CrawlResponse {
+    // The raw response body.
     optional bytes body = 1;
+    // When this response was finished downloading. (RFC-3339)
     optional string completed_at = 2;
+    // The MIME type of this content.
     optional string content_type = 3;
+    // This item's crawl cost. (See "Crawl Policy" for more details.)
     optional double cost = 4;
+    // How long this item took to download
     optional double duration = 5;
+    // The complete text of any exception that occurred while downloading.
     optional string exception = 6;
+    // The HTTP headers for this response.
     repeated Header headers = 7;
+    // If true, the response body is compressed.
     optional bool is_compressed = 8;
+    // If true, the response is considered a success. If false, either an HTTP error or an exception occurred.
     optional bool is_success = 9;
+    // The identifier of the crawl job that this crawl response is associated with.
     optional bytes job_id = 10;
+    // When the request for this item was sent. (RFC-3339)
     optional string started_at = 11;
+    // The HTTP status code returned for this response.
     optional int32 status_code = 12;
+    // The original request URL.
     optional string url = 13;
+    // The canonicalized request URL.
     optional string url_can = 14;
 }
 
 // An HTTP header.
 message Header {
+    // The name of the header.
     optional string key = 1;
+    // The header's value.
     optional string value = 2;
 }
 
 // Login information for a domain.
 message DomainLogin {
+    // The domain for which this login information is valid.
     optional string domain = 1;
+    // The URL for logging into this domain.
     optional string login_url = 2;
     optional string login_test = 3;
+    // Credentials for this domain.
     repeated DomainLoginUser users = 5;
 }
 
 // Username/password for a domain.
 message DomainLoginUser {
+    // The username part of a credential.
     optional string username = 1;
+    // The password part of a credential.
     optional string password = 2;
+    // If true, this credential is expected to work. If false, the credential is expected to fail.
     optional bool working = 3;
 }
 
 // An Event is sent for any active subscription whenever data is available for that subscription.
 message Event {
+    // A unique identifier for each subscription.
     required int32 subscription_id = 1;
 
     oneof Body {
+        // A list of crawl jobs.
         JobList job_list = 2;
+        // A list of schedules.
         ScheduleList schedule_list = 7;
+        // A snapshot of resource consumption at a point in time.
         ResourceFrame resource_frame = 3;
+        // Indicates that a subscription has ended.
         SubscriptionClosed subscription_closed = 4;
+        // A single crawled item wrapped with metadata to assist synchronization.
         SyncItem sync_item = 5;
+        // A snapshot of the Trio task's running at a point in time.
         TaskTree task_tree = 6;
     }
 }
 
 // A crawl job.
 message Job {
+    // The unique identifier for a crawl job.
     required bytes job_id = 1;
+    // The list of seed URLs for a crawl job.
     repeated string seeds = 2;
+    // The crawl policy associated with a crawl job.
     optional Policy policy = 3;
+    // The name assigned to this crawl job.
     optional string name = 4;
+    // The tags associated with this crawl job.
     repeated string tags = 5;
+    // The crawl job's current run state.
     optional JobRunState run_state = 6;
+    // The password part of a credential.
+    // When this crawl job started. (RFC-3339)
     optional string started_at = 7;
+    // Which this crawl job ended. (RFC-3339)
     optional string completed_at = 8;
+    // The number of requests sent for this crawl, inclusive of HTTP errors and exceptions.
     optional int32 item_count = 9 [default = -1];
+    // The number of successful responses for this crawl.
     optional int32 http_success_count = 10 [default = -1];
+    // The number of HTTP error responses for this crawl.
     optional int32 http_error_count = 11 [default = -1];
+    // The number of requests that resulted in an exception during this crawl.
     optional int32 exception_count = 12 [default = -1];
+    // Counts of the number of times each HTTP status code has been received during this crawl.
     map<int32, int32> http_status_counts = 13;
 }
 
@@ -109,29 +168,48 @@ message JobList {
 
 // The various run states a job may have.
 enum JobRunState {
+    // The job was cancelled.
     CANCELLED = 1;
+    // The job ran to completion.
     COMPLETED = 2;
+    // The job is paused but may be resumed in the future.
     PAUSED = 3;
+    // The job has been created but has not started running yet.
     PENDING = 4;
+    // The job is currently funning.
     RUNNING = 5;
-    DELETED = 6; // This isn't really a valid run state. It indicates that job no longer exists.
+    // This isn't actually a valid run state. This state is sent to job status subscriptions when a job is deleted so that subscribers know that the job is gone.
+    DELETED = 6;
 }
 
 
 // Schedule information for a job.
 message Schedule {
+    // Unique identifier for this schedule.
     optional bytes schedule_id = 1;
+    // When this schedule was created. (RFC-3339)
     optional string created_at = 2;
+    // When this job was last updated. (RFC-3339)
     optional string updated_at = 3;
+    // If true, jobs will run as scheduled. If false, the schedule is ignored and no new jobs will be created.
     optional bool enabled = 4;
+    // The unit of measurement referred to by `num_units`.
     optional ScheduleTimeUnit time_unit = 5;
+    // The number of time units that elapse between jobs.
     optional int32 num_units = 6;
+    // Indicates how the timing of a new job is related to the timing of the previous job.
     optional ScheduleTiming timing = 7;
+    // The name of this schedule.
     optional string schedule_name = 8;
+    // The template to use when naming jobs created by this schedule.
     optional string job_name = 9;
+    // The seed URLs to use for jobs created by this schedule.
     repeated string seeds = 10;
+    // The policy to use for jobs created by this schedule.
     optional bytes policy_id = 11;
+    // The tags to use for jobs created by this schedule.
     repeated string tags = 12;
+    // The number of jobs created by this schedule.
     optional int32 job_count = 13;
 }
 
@@ -154,13 +232,17 @@ enum ScheduleTimeUnit {
 
 // Define when a job should be scheduled.
 enum ScheduleTiming {
-    AFTER_PREVIOUS_JOB_FINISHED = 1; // Schedule a job X units of time after the previous job completes.
-    REGULAR_INTERVAL = 2; // Schedule a job every X units of time; if the previous job is still running, end it.
+    // Schedule a job X units of time after the previous job completes.
+    AFTER_PREVIOUS_JOB_FINISHED = 1;
+    // Schedule a job every X units of time; if the previous job is still running, end it.
+    REGULAR_INTERVAL = 2;
 }
 
-// For paginating large sets.
+// For paginating large sets, similar to LIMIT/OFFSET in SQL.
 message Page {
+    // The number of items to include on each page.
     optional int32 limit = 1 [default = 10];
+    // The number of items to skip over before emitting items for the current page.
     optional int32 offset = 2;
 }
 
@@ -172,19 +254,32 @@ enum PatternMatch {
 
 // Settings that dictate crawler behavior. Policy is set on a job-by-job basis.
 message Policy {
+    // Unique identifier for this policy.
     optional bytes policy_id = 1;
+    // The name assigned to this policy.
     optional string name = 2;
+    // When this policy was created. (RFC-3339)
     optional string created_at = 3;
+    // When this policy was last updated. (RFC-3339)
     optional string updated_at = 4;
 
+    // The CAPTCHA sovler to use.
     optional bytes captcha_solver_id = 14;
+    // The authentication subpolicy controls how the crawler logs in to websites.
     optional PolicyAuthentication authentication = 6;
+    // The limits subpolicy controls how long the crawler runs.
     optional PolicyLimits limits = 7;
+    // The proxy subpolicy controls what proxies the crawler uses.
     repeated PolicyProxyRule proxy_rules = 8;
+    // The MIME-type subpolicy controls what types of content the crawler downloads.
     repeated PolicyMimeTypeRule mime_type_rules = 9;
+    // The robots.txt subpolicy controls how the crawler handles robots directives.
     optional PolicyRobotsTxt robots_txt = 10;
+    // The normalization subpolicy controls how the crawler normalizes URLs in its crawl frontier.
     optional PolicyUrlNormalization url_normalization = 13;
+    // The URL rules subpolicy controls how the crawler computes cost numbers for URLs in its crawl frontier.
     repeated PolicyUrlRule url_rules = 11;
+    // The user agent subpolicy controls what user agent strings the crawler sends.
     repeated PolicyUserAgent user_agents = 12;
 }
 
@@ -195,8 +290,11 @@ message PolicyAuthentication {
 
 // Specifies limits on how far or how long a crawl runs.
 message PolicyLimits {
+    // Crawl items that exceed this cost will not be fetched.
     optional double max_cost = 1;
+    // The crawl will end after this many seconds have elapsed.
     optional double max_duration = 2;
+    // Crawl will end after this many items have been downloaded.
     optional int32 max_items = 3;
 }
 
@@ -204,44 +302,61 @@ message PolicyLimits {
 //
 // If pattern is not specified, then this rule applies to all responses.
 message PolicyMimeTypeRule {
+    // A regex pattern to match against the MIME type.
     optional string pattern = 1;
+    // Allows to invert a pattern.
     optional PatternMatch match = 2;
+    // If true, items with matching MIME types are saved and non-matches are discarded. If false, it's the opposite.
     optional bool save = 3;
 }
 
 // When and how to proxy requests.
 message PolicyProxyRule {
+    // A regex pattern to match against the URL.
     optional string pattern = 1;
+    // Allows to invert a pattern.
     optional PatternMatch match = 2;
+    // The URL of the proxy to use when items match this rule. If not provided, then no proxy is used.
     optional string proxy_url = 3;
 }
 
 // Specify handling of robots.txt.
 message PolicyRobotsTxt {
     enum Usage {
-        OBEY = 1;   // Obey robots.txt rules.
-        INVERT = 2; // Do the opposite of robots.txt rules.
-        IGNORE = 3; // Ignore robots.txt.
+        // Obey robots.txt rules.
+        OBEY = 1;
+        // Do the opposite of robots.txt rules.
+        INVERT = 2;
+        // Ignore robots.txt.
+        IGNORE = 3;
     }
 
     required Usage usage = 1;
 }
 
 message PolicyUrlNormalization {
+    // If true, URL normalization is applied to URLs in the crawl frontier. If false, URLs are not normalized.
     optional bool enabled = 1;
+    // A list of URL query parameters that are removed during normalization.
     repeated string strip_parameters = 2;
 }
 
 // A rule for adjusting a URL's cost.
 message PolicyUrlRule {
     enum Action {
-        ADD = 1;      // Add `amount` to parent cost.
-        MULTIPLY = 2; // Multiply parent cost by `amount`.
+        // Add `amount` to parent cost.
+        ADD = 1;
+        // Multiply parent cost by `amount`.
+        MULTIPLY = 2;
     }
 
+    // A regex pattern to match against the URL.
     optional string pattern = 1;
+    // Allows to invert a pattern.
     optional PatternMatch match = 2;
+    // The arithmetic operation to perform when a URL is matched.
     optional Action action = 3;
+    // The right operand to the arithmetic operation. (The left operand is the cost of the parent item.)
     optional double amount = 4;
 }
 
@@ -300,7 +415,9 @@ message Request {
 message Response {
     // The request ID will match the request that prompted this response.
     required int32 request_id = 1;
+    // If true, this is a successful response to a request. If false, an error occurred.
     required bool is_success = 2;
+    // If this is an error response, this field contains information about the error.
     optional string error_message = 3;
 
     // The body is optional. Some commands only need to return success/error data.
@@ -407,9 +524,13 @@ message RequestGetJob {
 
 // Get a list of jobs.
 message RequestListJobs {
+    // Pagination options for the job list.
     optional Page page = 1;
+    // Only return jobs started after the given datetime. (RFC-3339)
     optional string started_after = 2;
+    // Only return jobs matching the given tag.
     optional string tag = 3;
+    // Only return jobs belonging to the given schedule.
     optional bytes schedule_id = 4;
 }
 
@@ -425,11 +546,17 @@ message ResponseListJobs {
 //
 // Name, seeds, tags, and policy may only be specified for new jobs. Once a job is created, only the run state may be changed.
 message RequestSetJob {
+    // If specified, update the state of that job. Omit when creating new jobs.
     optional bytes job_id = 1;
+    // Set the run state for the job.
     optional JobRunState run_state = 2;
+    // Set the policy for this job. (This is only applicable when creating a new job.)
     optional bytes policy_id = 3;
+    // Set the seeds for this job. (This is only applicable when creating a new job.)
     repeated string seeds = 4;
+    // Set the name for this job. (This is only applicable when creating a new job.)
     optional string name = 5;
+    // Set the tags for this job. (This is only applicable when creating a new job.)
     repeated string tags = 6;
 }
 
@@ -440,11 +567,14 @@ message ResponseNewJob {
 
 // Get a list of items (crawl responses) from a job.
 message RequestGetJobItems {
+    // Get items beloning to this job.
     required bytes job_id = 1;
     optional bool include_success = 2;
     optional bool include_error = 3;
     optional bool include_exception = 4;
+    // If true, some items may have compressed response bodies. The caller should check the compression flag for each item and handle accordingly.
     optional bool compression_ok = 5 [default = true];
+    // Pagination options for job items.
     optional Page page = 6;
 }
 
@@ -482,6 +612,7 @@ message ResponseListSchedules {
 // Get a list of jobs for a given schedules.
 message RequestListScheduleJobs {
     required bytes schedule_id = 1;
+    // Pagination options for job schedules.
     optional Page page = 2;
 }
 
@@ -516,6 +647,7 @@ message RequestGetPolicy {
 
 // Get a list of policies.
 message RequestListPolicies {
+    // Pagination options for policies.
     optional Page page = 1;
 }
 
@@ -545,14 +677,19 @@ message ResponseNewPolicy {
 //
 // If the client sends a name, the server ignores it. The server will always send a name to the client.
 message RateLimit {
+    // The name of the rate-limit. (Read-only)
     optional string name = 1;
+    // The delay, in seconds, between requests associated with this rate-limit token.
     optional float delay = 2;
+    // The rate-limit token. (Read-only)
     optional bytes token = 3;
+    // The name of the domain that this rate limit applies to.
     optional string domain = 4;
 }
 
 // Show rate limits.
 message RequestListRateLimits {
+    // Pagination options for rate limits.
     optional Page page = 1;
 }
 
@@ -566,12 +703,15 @@ message ResponseListRateLimits {
 
 // Set a rate limit.
 message RequestSetRateLimit {
+    // The domain to set the rate limit for.
     optional string domain = 1;
+    // The delay, in seconds, between requests to this domain.
     optional float delay = 2;
 }
 
 // Request a performance profile.
 message RequestPerformanceProfile {
+    // The amount of time to spend collecting samples.
     optional double duration = 1 [default = 5.0];
     optional string sort_by = 2 [default = "total_time"];
     optional int32 top_n = 3;
@@ -603,14 +743,19 @@ message RequestSubscribeJobStatus {
 
 // Synchronize crawl responses.
 message RequestSubscribeJobSync {
+    // The job ID to subscribe to.
     required bytes job_id = 1;
+    // If provided, resume an earlier sync subscription at the point represented by this token. (Tokens are obtained from previously received sync items.)
     optional bytes sync_token = 2;
+    // If true, then some response bodies may be compressed. The caller should check the compression flag on each item and handle accordingly.
     optional bool compression_ok = 3 [default = true];
 }
 
 // An item sent when syncing a crawl job. One event is sent for each crawl response.
 message SyncItem {
+    // The item downloaded by the crawl job.
     required CrawlResponse item = 1;
+    // The sync token associated with this item. This can be used to resume a subscription later from the same point.
     required bytes token = 2;
 }
 
@@ -629,6 +774,7 @@ message RequestSubscribeResourceMonitor {
 
 // Subscribe to updates about resource usage (CPU, memory, disk, etc.)
 message RequestSubscribeTaskMonitor {
+    // The number of seconds in between task snapshots.
     optional double period = 1 [default = 3];
 }
 
@@ -655,51 +801,74 @@ message SubscriptionClosed {
 
 // Data about resource consumption.
 message ResourceFrame {
+    // When this snapshot was created. (RFC-3339)
     optional string timestamp = 1;
+    // Information about CPU usage.
     repeated ResourceFrameCpu cpus = 2;
+    // Information about memory usage.
     optional ResourceFrameMemory memory = 3;
+    // Information about disk usage.
     repeated ResourceFrameDisk disks = 4;
+    // Information about network interface usage.
     repeated ResourceFrameNetwork networks = 5;
+    // Information about current crawl jobs.
     repeated ResourceFrameJob jobs = 6;
+    // The total number of in-flight requests made by the downloader.
     optional int32 current_downloads = 7;
+    // The maximum number of in-flight requests permitted by the downloader.
     optional int32 maximum_downloads = 8;
+    // The number of items buffered inside the rate limiter.
     optional int32 rate_limiter = 9;
 }
 
 // CPU usage.
 message ResourceFrameCpu {
+    // CPU utilization as a percentaged (0.0-100.0)
     optional double usage = 1;
 }
 
 // Resources used by a crawl job.
 message ResourceFrameJob {
+    // The job's identifier.
     optional bytes job_id = 1;
+    // The job's name.
     optional string name = 2;
+    // The number of items this job is currently downloading.
     optional int32 current_downloads = 3;
 }
 
 // Disk usage.
 message ResourceFrameDisk {
+    // The mountpoint for a file system.
     optional string mount = 1;
+    // The amount of space used on a file system, in bytes.
     optional int64 used = 2;
+    // The total space on a file system, in bytes.
     optional int64 total = 3;
 }
 
 // Memory usage.
 message ResourceFrameMemory {
+    // Memory usage in bytes.
     optional int64 used = 1;
+    // The total amount of memory on the system, in bytes.
     optional int64 total = 2;
 }
 
 // Network usage.
 message ResourceFrameNetwork {
+    // The name of the network interface.
     optional string name = 1;
+    // The number of bytes sent on this interface.
     optional int64 sent = 2;
+    // The number of bytes received on this interface.
     optional int64 received = 3;
 }
 
 // A subtree of Trio tasks.
 message TaskTree {
+    // The name of the Trio task.
     optional string name = 1;
+    // Child tasks belonging to this task.
     repeated TaskTree subtasks = 2;
 }

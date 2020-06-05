@@ -13,25 +13,26 @@ bindings contained in this repository.
 
 ## Installation
 
-Compilation requires the installation of the `protoc` compiler. On Ubuntu 16,
-this package is called `protobuf-compiler`.
+First, when you check out this repository, be sure to use the ``--recursive`` flag to
+install the submodule for Dart protobufs.
 
-    $ apt install protobuf-compiler
+    $ git clone --recursive https://github.com/HyperionGray/starbelly-protobuf.git
 
-The `protoc` compiler has built-in support for Python. (It also supports C, C++,
-and Java, but we don't use those on this project.) Support for Dart requires
-some additional tools. First, install dart version 2.1 following [these
-instructions](https://www.dartlang.org/tools/sdk).
+If you already checked out this repository, you can install the submodule by running
+these commands:
 
-Next, check out the Dart plugin for `protoc`. You should run this this command
-from the root of this repository.
+    $ git submodule init
+    $ git submodule update
 
-    $ git clone https://github.com/dart-lang/protobuf.git
-
-Now install the plugin's dependencies:
+Go into the protobuf submodule and fetch its dependencies:
 
     $ cd protobuf/protoc_plugin
     $ pub get
+
+Compilation requires the installation of the `protoc` compiler. On Ubuntu 19.10,
+this package is called `protobuf-compiler`.
+
+    $ apt install protobuf-compiler
 
 You will also need Docker installed to build documentation for the protobufs.
 Now you should be ready to compile the protobuf definitions.
@@ -41,24 +42,19 @@ Now you should be ready to compile the protobuf definitions.
 To compile protobuf definitions, run this command from the root of this
 repository:
 
-    $ protoc --plugin=protobuf/protoc_plugin/bin/protoc-gen-dart \
-             --dart_out=build \
-             --python_out=build \
-             starbelly.proto
+    $ make build
 
-To build documentation:
+This will compile the protobufs in to Python and Dart versions, and also create HTML
+documentation.
 
-    $ docker run --rm -v "$PWD/build:/out" -v "$PWD:/protos" \
-             pseudomuto/protoc-gen-doc --doc_opt=/protos/template.html,protobuf.html
+If you have the `starbelly` and `starbelly-web-client` repositories checked out in the
+parent directory as this `starbelly-protobuf` directory, then you can run this command
+to copy the generated files into their appropriate destinations.
 
-The resulting files will be placed in the `build` directory. If your
-`starbelly` and `starbelly-web-client` directories are checked out in the same
-directory as this project, then you can use these commands to copy the build
-artifacts to the correct locations:
+    $ make install
 
-    $ cp build/*.dart ../starbelly-web-client/lib/protobuf/
-    $ cp build/starbelly_pb2.py ../starbelly/starbelly/
-    $ cp build/protobuf.html ../starbelly/docs/
+You will need to go into those other repos to see these changes, test them, and commit
+them.
 
 ---
 
